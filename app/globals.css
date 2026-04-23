@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 210 40% 98%;
+  --foreground: 222.2 47.4% 11.2%;
+  --muted: 215 20% 95%;
+  --muted-foreground: 215 16% 40%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 47.4% 11.2%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 47.4% 11.2%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --primary: 221 83% 53%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 174 55% 96%;
+  --secondary-foreground: 174 70% 22%;
+  --accent: 40 94% 96%;
+  --accent-foreground: 24 80% 24%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 210 40% 98%;
+  --success: 149 80% 92%;
+  --success-foreground: 154 61% 20%;
+  --warning: 46 97% 88%;
+  --warning-foreground: 33 90% 25%;
+  --ring: 221 83% 53%;
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: 220 26% 8%;
+  --foreground: 210 20% 96%;
+  --muted: 220 18% 15%;
+  --muted-foreground: 215 14% 70%;
+  --popover: 220 22% 10%;
+  --popover-foreground: 210 20% 96%;
+  --card: 220 22% 10%;
+  --card-foreground: 210 20% 96%;
+  --border: 220 15% 22%;
+  --input: 220 15% 22%;
+  --primary: 198 93% 60%;
+  --primary-foreground: 220 26% 8%;
+  --secondary: 170 50% 16%;
+  --secondary-foreground: 170 60% 88%;
+  --accent: 36 54% 18%;
+  --accent-foreground: 40 100% 89%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 210 40% 98%;
+  --success: 149 50% 16%;
+  --success-foreground: 151 76% 87%;
+  --warning: 42 54% 18%;
+  --warning-foreground: 48 96% 89%;
+  --ring: 198 93% 60%;
+}
+
+* {
+  @apply border-border;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+  font-feature-settings: "rlig" 1, "calt" 1;
+  min-height: 100vh;
+}
+
+a {
+  @apply text-inherit no-underline;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}

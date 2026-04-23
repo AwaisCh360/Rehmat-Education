@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(cuid())
+  name           String
+  email          String          @unique
+  passwordHash   String
+  role           String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  importSessions ImportSession[]
+  reviewedSignupRequests AgentSignupRequest[]
+}
+
+model AgentSignupRequest {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  reviewedAt   DateTime?
+  reviewedById String?
+  reviewedBy   User?    @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Program {
+  id                         String   @id
+  universityName             String
+  programDegree              String?
+  programName                String
+  universityNameCn           String?
+  programNameCn              String?
+  alternativeProgramName     String?
+  currencyType               String?
+  tuitionFeeOriginal         String?
+  discountedTuitionFeeOriginal String?
+  cashPaymentFeeOriginal     String?
+  prepSchoolFeeOriginal      String?
+  depositPriceOriginal       String?
+  tuitionFee                 Float?
+  discountedTuitionFee       Float?
+  cashPaymentFee             Float?
+  prepSchoolFee              Float?
+  depositPrice               Float?
+  language                   String?
+  campus                     String?
+  quotaFull                  Boolean  @default(false)
+  programRef                 String?
+  termSettings               String?
+  semester                   String?
+  universityId               String?
+  academicYear               String?
+  unilogo                    String?
+  universityKey              String
+  programKey                 String
+  degreeKey                  String
+  languageKey                String
+  campusKey                  String
+  searchText                 String
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  @@index([universityKey])
+  @@index([programKey])
+  @@index([degreeKey])
+  @@index([languageKey])
+  @@index([campusKey])
+  @@index([discountedTuitionFee])
+  @@index([tuitionFee])
+}
+
+model ImportSession {
+  id           String   @id @default(cuid())
+  fileName     String
+  importMode   String?
+  status       String   @default("PREVIEW")
+  rowCount     Int
+  diffJson     String
+  payloadJson  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdById  String
+  createdBy    User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([createdById])
+}
+
+model AppSetting {
+  key        String   @id
+  valueJson  String
+  updatedAt  DateTime @updatedAt
+}
