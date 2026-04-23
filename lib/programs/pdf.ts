@@ -307,9 +307,13 @@ function printableCurrency(value: number | null, currency: string) {
     return "Not specified";
   }
 
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: value % 1 === 0 ? 0 : 2
-  }).format(value);
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: value % 1 === 0 ? 0 : 2
+    }).format(value);
+  } catch {
+    return `${value.toLocaleString("en-US")} ${currency}`.trim();
+  }
 }

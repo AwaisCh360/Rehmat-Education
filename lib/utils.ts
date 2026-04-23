@@ -10,11 +10,16 @@ export function formatCurrency(value: number | null | undefined, currency = "USD
     return "Not specified";
   }
 
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: value % 1 === 0 ? 0 : 2
-  }).format(value);
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: value % 1 === 0 ? 0 : 2
+    }).format(value);
+  } catch {
+    const normalized = Number.isFinite(value) ? value.toLocaleString("en-US") : String(value);
+    return `${normalized} ${currency}`.trim();
+  }
 }
 
 export function formatCount(value: number) {

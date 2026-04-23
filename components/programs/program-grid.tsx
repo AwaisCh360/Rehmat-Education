@@ -83,7 +83,7 @@ export function ProgramGrid({ programs }: { programs: Program[] }) {
               }
 
               const query = encodeURIComponent(selectedIds.join(","));
-              window.open(`/api/programs/pdf?ids=${query}`, "_blank", "noopener,noreferrer");
+              window.location.assign(`/api/programs/pdf?ids=${query}`);
             }}
             size="sm"
           >

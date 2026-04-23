@@ -54,7 +54,7 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
         <div className="flex flex-wrap items-center gap-3">
           <ProgramStatusBadge quotaFull={program.quotaFull} />
           <Button asChild>
-            <Link href={`/api/programs/${program.id}/pdf`} target="_blank">
+            <Link href={`/api/programs/${program.id}/pdf`}>
               <Download className="h-4 w-4" />
               Download PDF
             </Link>
