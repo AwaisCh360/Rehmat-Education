@@ -5,6 +5,7 @@ import { hash } from "bcryptjs";
 import { z } from "zod";
 
 import authConfig from "@/auth.config";
+import { isAgentRevoked } from "@/lib/auth/agent-access";
 import { db } from "@/lib/db";
 import { APP_ROLES, type AppRole } from "@/lib/auth/roles";
 
@@ -106,6 +107,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         if (!authUser) {
+          return null;
+        }
+
+        if (authUser.role === APP_ROLES.AGENT && (await isAgentRevoked(authUser.id))) {
           return null;
         }
 

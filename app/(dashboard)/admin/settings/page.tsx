@@ -1,5 +1,8 @@
 import { AgentApprovalRequests } from "@/components/admin/agent-approval-requests";
+import { AgentAccessManager } from "@/components/admin/agent-access-manager";
 import { FilterVisibilitySettingsForm } from "@/components/admin/filter-visibility-settings-form";
+import { getRevokedAgentIds } from "@/lib/auth/agent-access";
+import { APP_ROLES } from "@/lib/auth/roles";
 import { requireAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { getFilterVisibilitySettings } from "@/lib/programs/filter-visibility";
@@ -9,7 +12,7 @@ import { getPdfVisibilitySettings } from "@/lib/programs/pdf-visibility";
 export default async function AdminSettingsPage() {
   await requireAdmin();
   try {
-    const [initialFilterSettings, initialPdfSettings, initialImportSettings, pendingRequests] = await Promise.all([
+    const [initialFilterSettings, initialPdfSettings, initialImportSettings, pendingRequests, agents, revokedAgentIds] = await Promise.all([
       getFilterVisibilitySettings(),
       getPdfVisibilitySettings(),
       getImportSettings(),
@@ -27,8 +30,26 @@ export default async function AdminSettingsPage() {
           status: true,
           createdAt: true
         }
+      }),
+      db.user.findMany({
+        where: {
+          role: APP_ROLES.AGENT
+        },
+        orderBy: {
+          createdAt: "desc"
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          createdAt: true
+        }
       })
+      ,
+      getRevokedAgentIds()
     ]);
+
+    const revokedSet = new Set(revokedAgentIds);
 
     return (
       <div className="space-y-6">
@@ -47,6 +68,16 @@ export default async function AdminSettingsPage() {
           initialRequests={pendingRequests.map((request) => ({
             ...request,
             createdAt: request.createdAt.toISOString()
+          }))}
+        />
+
+        <AgentAccessManager
+          initialAgents={agents.map((agent) => ({
+            id: agent.id,
+            name: agent.name,
+            email: agent.email,
+            createdAt: agent.createdAt.toISOString(),
+            accessStatus: revokedSet.has(agent.id) ? "REVOKED" : "ACTIVE"
           }))}
         />
       </div>

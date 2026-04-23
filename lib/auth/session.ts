@@ -2,15 +2,53 @@ import { NextResponse } from "next/server";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { isAgentRevoked } from "@/lib/auth/agent-access";
+import { APP_ROLES } from "@/lib/auth/roles";
+import { db } from "@/lib/db";
 
-export async function requireUser() {
+async function getValidatedUser() {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
+    return null;
+  }
+
+  const user = await db.user.findUnique({
+    where: {
+      id: session.user.id
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true
+    }
+  });
+
+  if (!user) {
+    return null;
+  }
+
+  if (user.role === APP_ROLES.AGENT && (await isAgentRevoked(user.id))) {
+    return null;
+  }
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role === APP_ROLES.ADMIN ? APP_ROLES.ADMIN : APP_ROLES.AGENT
+  };
+}
+
+export async function requireUser() {
+  const user = await getValidatedUser();
+
+  if (!user) {
     redirect("/login");
   }
 
-  return session.user;
+  return user;
 }
 
 export async function requireAdmin() {
@@ -24,13 +62,13 @@ export async function requireAdmin() {
 }
 
 export async function requireApiUser() {
-  const session = await auth();
+  const user = await getValidatedUser();
 
-  if (!session?.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  return session.user;
+  return user;
 }
 
 export async function requireApiAdmin() {
