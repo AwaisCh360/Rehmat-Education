@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     where: {
       email
     },
-    data: {
+    create: {
       name: parsed.data.name,
       email,
       passwordHash

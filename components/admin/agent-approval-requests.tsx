@@ -74,7 +74,7 @@ export function AgentApprovalRequests({ initialRequests }: { initialRequests: Pe
                     <TableCell>{request.email}</TableCell>
                     <TableCell>{new Date(request.createdAt).toLocaleString()}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{request.status}</Badge>
+                      <Badge variant="warning">{request.status}</Badge>
                     </TableCell>
                     <TableCell className="space-x-2 text-right">
                       <Button disabled={isPending || isRowBusy} onClick={() => reviewRequest(request.id, "reject")} size="sm" variant="outline">

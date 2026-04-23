@@ -17,7 +17,7 @@ type AppSettingDelegate = {
   upsert: (args: unknown) => Promise<unknown>;
 };
 
-export async function getImportSettings() {
+export async function getImportSettings(): Promise<ImportSettings> {
   const appSetting = (db as unknown as { appSetting?: AppSettingDelegate }).appSetting;
 
   if (!appSetting) {
@@ -37,7 +37,7 @@ export async function getImportSettings() {
   return normalizeImportSettings(setting.valueJson);
 }
 
-export async function setImportSettings(nextSettings: ImportSettings) {
+export async function setImportSettings(nextSettings: ImportSettings): Promise<ImportSettings> {
   const normalized = {
     ...defaultImportSettings,
     ...nextSettings
@@ -65,7 +65,7 @@ export async function setImportSettings(nextSettings: ImportSettings) {
   return normalized;
 }
 
-function normalizeImportSettings(valueJson: string) {
+function normalizeImportSettings(valueJson: string): ImportSettings {
   try {
     const parsed = JSON.parse(valueJson) as Partial<ImportSettings>;
 
