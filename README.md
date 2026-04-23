@@ -96,6 +96,7 @@ npm run prisma:seed
 
 - `DATABASE_URL`
 - `AUTH_SECRET`
+- `AUTH_SECRET_PREVIOUS` (optional, for secret rotation)
 - `NEXTAUTH_URL` (example: `https://your-app.vercel.app`)
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`
@@ -126,6 +127,20 @@ npm run start
 
 - Admin: `admin@rehmatedu.local` / `AdminPass123!`
 - Agent: `agent@rehmatedu.local` / `AgentPass123!`
+
+## Vercel troubleshooting
+
+### Login not working with Vercel env credentials
+
+- Confirm `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `AGENT_EMAIL`, and `AGENT_PASSWORD` are set in Vercel for the same environment (Production/Preview).
+- Redeploy after changing env variables.
+- The credentials flow now auto-syncs default admin/agent accounts from env on successful login attempts, so stale DB password hashes are repaired automatically.
+
+### PDF button not downloading on production
+
+- PDF routes run on Node runtime and require an authenticated session.
+- The selected-program PDF action uses direct navigation (instead of popup opening) to avoid browser popup blocking.
+- If PDF still fails, check Vercel Function logs for `/api/programs/pdf` or `/api/programs/[id]/pdf`.
 
 ## Notes
 
