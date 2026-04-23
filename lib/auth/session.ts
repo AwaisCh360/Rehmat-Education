@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { isAgentRevoked } from "@/lib/auth/agent-access";
 import { APP_ROLES } from "@/lib/auth/roles";
-import { db } from "@/lib/db";
 
 async function getValidatedUser() {
   const session = await auth();
@@ -13,31 +12,17 @@ async function getValidatedUser() {
     return null;
   }
 
-  const user = await db.user.findUnique({
-    where: {
-      id: session.user.id
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true
-    }
-  });
+  const role = session.user.role === APP_ROLES.ADMIN ? APP_ROLES.ADMIN : APP_ROLES.AGENT;
 
-  if (!user) {
-    return null;
-  }
-
-  if (user.role === APP_ROLES.AGENT && (await isAgentRevoked(user.id))) {
+  if (role === APP_ROLES.AGENT && (await isAgentRevoked(session.user.id))) {
     return null;
   }
 
   return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role === APP_ROLES.ADMIN ? APP_ROLES.ADMIN : APP_ROLES.AGENT
+    id: session.user.id,
+    name: session.user.name ?? "",
+    email: session.user.email ?? "",
+    role
   };
 }
 

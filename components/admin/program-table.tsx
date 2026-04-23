@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { Program } from "@prisma/client";
 import { PencilLine, Plus } from "lucide-react";
 
 import { DeleteProgramButton } from "@/components/admin/delete-program-button";
@@ -7,9 +6,10 @@ import { ProgramStatusBadge } from "@/components/programs/program-status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import type { ProgramListItem } from "@/lib/programs/query";
 import { formatCurrency, formatNullable } from "@/lib/utils";
 
-export function ProgramTable({ programs }: { programs: Program[] }) {
+export function ProgramTable({ programs }: { programs: ProgramListItem[] }) {
   return (
     <Card className="rounded-2xl border-border/70">
       <CardHeader className="flex flex-row items-center justify-between gap-4">

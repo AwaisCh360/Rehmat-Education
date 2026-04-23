@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ArrowRight, Building2, GraduationCap, Languages, MapPin } from "lucide-react";
-import type { Program } from "@prisma/client";
 
 import { ProgramStatusBadge } from "@/components/programs/program-status-badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import type { ProgramListItem } from "@/lib/programs/query";
 import { formatCurrency, formatNullable } from "@/lib/utils";
 
 export function ProgramCard({
@@ -12,7 +12,7 @@ export function ProgramCard({
   selected = false,
   onSelectedChange
 }: {
-  program: Program;
+  program: ProgramListItem;
   selectable?: boolean;
   selected?: boolean;
   onSelectedChange?: (selected: boolean) => void;

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { requireApiAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db";
+import { revalidateProgramFiltersCache } from "@/lib/programs/cache";
 import { getPrograms } from "@/lib/programs/query";
 import { programFormSchema, toProgramMutationInput } from "@/lib/programs/schemas";
 
@@ -48,6 +49,8 @@ export async function POST(request: Request) {
   const program = await db.program.create({
     data: input
   });
+
+  revalidateProgramFiltersCache();
 
   return NextResponse.json(program, { status: 201 });
 }

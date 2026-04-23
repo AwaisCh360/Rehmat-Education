@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 import { db } from "@/lib/db";
+import { withProgramFiltersCache } from "@/lib/programs/cache";
 import { getRepresentativeValue, normalizeFilterKey, normalizeText } from "@/lib/programs/normalize";
 
 export type ProgramListParams = {
@@ -23,6 +24,46 @@ export type FilterOption = {
   label: string;
   count: number;
 };
+
+export type ProgramListItem = {
+  id: string;
+  universityName: string;
+  programName: string;
+  universityNameCn: string | null;
+  programNameCn: string | null;
+  programDegree: string | null;
+  language: string | null;
+  campus: string | null;
+  discountedTuitionFee: number | null;
+  tuitionFee: number | null;
+  cashPaymentFee: number | null;
+  depositPrice: number | null;
+  prepSchoolFee: number | null;
+  academicYear: string | null;
+  semester: string | null;
+  quotaFull: boolean;
+  currencyType: string | null;
+};
+
+const PROGRAM_LIST_SELECT = {
+  id: true,
+  universityName: true,
+  programName: true,
+  universityNameCn: true,
+  programNameCn: true,
+  programDegree: true,
+  language: true,
+  campus: true,
+  discountedTuitionFee: true,
+  tuitionFee: true,
+  cashPaymentFee: true,
+  depositPrice: true,
+  prepSchoolFee: true,
+  academicYear: true,
+  semester: true,
+  quotaFull: true,
+  currencyType: true
+} satisfies Prisma.ProgramSelect;
 
 export async function getPrograms(params: ProgramListParams) {
   const page = Math.max(Number(params.page ?? "1") || 1, 1);
@@ -55,6 +96,7 @@ export async function getPrograms(params: ProgramListParams) {
 
   const [items, total] = await Promise.all([
     db.program.findMany({
+      select: PROGRAM_LIST_SELECT,
       where,
       orderBy,
       skip: (page - 1) * pageSize,
@@ -64,7 +106,7 @@ export async function getPrograms(params: ProgramListParams) {
   ]);
 
   return {
-    items,
+    items: items as ProgramListItem[],
     total,
     page,
     pageSize,
@@ -73,28 +115,30 @@ export async function getPrograms(params: ProgramListParams) {
 }
 
 export async function getProgramFilters() {
-  const rows = await db.program.findMany({
-    select: {
-      universityKey: true,
-      universityName: true,
-      programKey: true,
-      programName: true,
-      degreeKey: true,
-      programDegree: true,
-      languageKey: true,
-      language: true,
-      campusKey: true,
-      campus: true
-    }
-  });
+  return withProgramFiltersCache(async () => {
+    const rows = await db.program.findMany({
+      select: {
+        universityKey: true,
+        universityName: true,
+        programKey: true,
+        programName: true,
+        degreeKey: true,
+        programDegree: true,
+        languageKey: true,
+        language: true,
+        campusKey: true,
+        campus: true
+      }
+    });
 
-  return {
-    universities: buildOptions(rows, "universityKey", "universityName"),
-    programs: buildOptions(rows, "programKey", "programName"),
-    degrees: buildOptions(rows, "degreeKey", "programDegree", "Not specified"),
-    languages: buildOptions(rows, "languageKey", "language", "Not specified"),
-    campuses: buildOptions(rows, "campusKey", "campus", "Not specified")
-  };
+    return {
+      universities: buildOptions(rows, "universityKey", "universityName"),
+      programs: buildOptions(rows, "programKey", "programName"),
+      degrees: buildOptions(rows, "degreeKey", "programDegree", "Not specified"),
+      languages: buildOptions(rows, "languageKey", "language", "Not specified"),
+      campuses: buildOptions(rows, "campusKey", "campus", "Not specified")
+    };
+  });
 }
 
 function buildOptions<T extends Record<string, string | null>>(rows: T[], keyField: keyof T, valueField: keyof T, fallback = "Not specified") {

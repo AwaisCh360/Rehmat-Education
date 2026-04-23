@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { requireApiAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db";
+import { revalidateProgramFiltersCache } from "@/lib/programs/cache";
 import { programFormSchema, toProgramMutationInput } from "@/lib/programs/schemas";
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
@@ -38,6 +39,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     data: toProgramMutationInput(parsed.data)
   });
 
+  revalidateProgramFiltersCache();
+
   return NextResponse.json(program);
 }
 
@@ -53,6 +56,8 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
       id: params.id
     }
   });
+
+  revalidateProgramFiltersCache();
 
   return NextResponse.json({ ok: true });
 }

@@ -1,10 +1,12 @@
 import { db } from "@/lib/db";
+import { revalidateTag, unstable_cache } from "next/cache";
 
 type AgentAccessSettings = {
   revokedAgentIds: string[];
 };
 
 const SETTINGS_KEY = "agent-access-settings";
+const AGENT_ACCESS_CACHE_TAG = "agent-access-settings";
 
 const defaultAgentAccessSettings: AgentAccessSettings = {
   revokedAgentIds: []
@@ -16,23 +18,34 @@ type AppSettingDelegate = {
 };
 
 export async function getAgentAccessSettings(): Promise<AgentAccessSettings> {
-  const appSetting = (db as unknown as { appSetting?: AppSettingDelegate }).appSetting;
+  const loader = async () => {
+    const appSetting = (db as unknown as { appSetting?: AppSettingDelegate }).appSetting;
 
-  if (!appSetting) {
-    return defaultAgentAccessSettings;
-  }
-
-  const setting = await appSetting.findUnique({
-    where: {
-      key: SETTINGS_KEY
+    if (!appSetting) {
+      return defaultAgentAccessSettings;
     }
-  });
 
-  if (!setting) {
-    return defaultAgentAccessSettings;
+    const setting = await appSetting.findUnique({
+      where: {
+        key: SETTINGS_KEY
+      }
+    });
+
+    if (!setting) {
+      return defaultAgentAccessSettings;
+    }
+
+    return normalizeAgentAccessSettings(setting.valueJson);
+  };
+
+  try {
+    return await unstable_cache(loader, [AGENT_ACCESS_CACHE_TAG], {
+      revalidate: 300,
+      tags: [AGENT_ACCESS_CACHE_TAG]
+    })();
+  } catch {
+    return await loader();
   }
-
-  return normalizeAgentAccessSettings(setting.valueJson);
 }
 
 export async function getRevokedAgentIds(): Promise<string[]> {
@@ -87,6 +100,8 @@ async function setAgentAccessSettings(nextSettings: AgentAccessSettings): Promis
       valueJson: JSON.stringify(normalized)
     }
   });
+
+  revalidateTag(AGENT_ACCESS_CACHE_TAG);
 
   return normalized;
 }

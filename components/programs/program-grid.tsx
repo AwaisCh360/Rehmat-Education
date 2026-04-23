@@ -3,15 +3,15 @@
 import { useEffect, useState } from "react";
 import { Download, LayoutGrid, ListChecks, Table2 } from "lucide-react";
 import Link from "next/link";
-import type { Program } from "@prisma/client";
 
 import { ProgramCard } from "@/components/programs/program-card";
 import { ProgramStatusBadge } from "@/components/programs/program-status-badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import type { ProgramListItem } from "@/lib/programs/query";
 import { formatCurrency, formatNullable } from "@/lib/utils";
 
-export function ProgramGrid({ programs }: { programs: Program[] }) {
+export function ProgramGrid({ programs }: { programs: ProgramListItem[] }) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
   const selectedIdSet = new Set(selectedIds);
