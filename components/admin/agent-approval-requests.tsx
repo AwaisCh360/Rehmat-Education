@@ -13,6 +13,12 @@ export type PendingAgentRequest = {
   id: string;
   name: string;
   email: string;
+  address: string | null;
+  cnic: string | null;
+  country: string | null;
+  province: string | null;
+  city: string | null;
+  phoneNumber: string | null;
   createdAt: string;
   status: string;
 };
@@ -59,6 +65,9 @@ export function AgentApprovalRequests({ initialRequests }: { initialRequests: Pe
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>CNIC</TableHead>
                 <TableHead>Requested</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -72,6 +81,14 @@ export function AgentApprovalRequests({ initialRequests }: { initialRequests: Pe
                   <TableRow key={request.id}>
                     <TableCell className="font-medium">{request.name}</TableCell>
                     <TableCell>{request.email}</TableCell>
+                    <TableCell>
+                      <div>{request.phoneNumber || "Not provided"}</div>
+                      <div className="text-xs text-muted-foreground">{request.address || "Address not provided"}</div>
+                    </TableCell>
+                    <TableCell>
+                      {[request.city, request.province, request.country].filter(Boolean).join(", ") || "Not provided"}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">{request.cnic || "Not provided"}</TableCell>
                     <TableCell>{new Date(request.createdAt).toLocaleString()}</TableCell>
                     <TableCell>
                       <Badge variant="warning">{request.status}</Badge>

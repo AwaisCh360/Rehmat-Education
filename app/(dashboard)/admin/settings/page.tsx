@@ -27,6 +27,12 @@ export default async function AdminSettingsPage() {
           id: true,
           name: true,
           email: true,
+          address: true,
+          cnic: true,
+          country: true,
+          province: true,
+          city: true,
+          phoneNumber: true,
           status: true,
           createdAt: true
         }

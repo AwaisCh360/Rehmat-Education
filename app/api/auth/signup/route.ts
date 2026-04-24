@@ -11,6 +11,13 @@ const signupSchema = z.object({
   country: z.string().trim().min(2).max(80),
   province: z.string().trim().min(2).max(80),
   city: z.string().trim().min(2).max(80),
+  address: z.string().trim().min(8).max(240),
+  cnic: z
+    .string()
+    .trim()
+    .min(5)
+    .max(32)
+    .regex(/^[A-Za-z0-9-]+$/, "Invalid CNIC format"),
   phoneNumber: z
     .string()
     .trim()
@@ -62,6 +69,8 @@ export async function POST(request: Request) {
       country: parsed.data.country,
       province: parsed.data.province,
       city: parsed.data.city,
+      address: parsed.data.address,
+      cnic: parsed.data.cnic,
       phoneNumber: parsed.data.phoneNumber
     },
     update: {
@@ -70,6 +79,8 @@ export async function POST(request: Request) {
       country: parsed.data.country,
       province: parsed.data.province,
       city: parsed.data.city,
+      address: parsed.data.address,
+      cnic: parsed.data.cnic,
       phoneNumber: parsed.data.phoneNumber,
       status: "PENDING",
       reviewedAt: null,

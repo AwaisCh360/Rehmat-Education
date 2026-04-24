@@ -3,13 +3,14 @@
 import * as React from "react";
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { AlertCircle, LoaderCircle, LockKeyhole, Mail, MapPin, Phone, User } from "lucide-react";
+import { AlertCircle, CreditCard, LoaderCircle, LockKeyhole, Mail, MapPin, Phone, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export function SignupForm() {
   const router = useRouter();
@@ -21,6 +22,8 @@ export function SignupForm() {
   const [province, setProvince] = useState("");
   const [city, setCity] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [cnic, setCnic] = useState("");
+  const [address, setAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -42,7 +45,9 @@ export function SignupForm() {
           country,
           province,
           city,
-          phoneNumber
+          phoneNumber,
+          cnic,
+          address
         })
       });
 
@@ -60,6 +65,8 @@ export function SignupForm() {
       setProvince("");
       setCity("");
       setPhoneNumber("");
+      setCnic("");
+      setAddress("");
       setSuccessMessage(payload.message ?? "Registration request sent. Wait for admin approval before signing in.");
       router.refresh();
     });
@@ -130,6 +137,28 @@ export function SignupForm() {
                     value={phoneNumber}
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cnic">CNIC / National ID</Label>
+                <div className="relative">
+                  <CreditCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    className="pl-9"
+                    id="cnic"
+                    onChange={(event) => setCnic(event.target.value)}
+                    placeholder="35202-1234567-8"
+                    value={cnic}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="address">Address</Label>
+                <Textarea
+                  id="address"
+                  onChange={(event) => setAddress(event.target.value)}
+                  placeholder="Street, area, city"
+                  value={address}
+                />
               </div>
             </div>
           </div>
