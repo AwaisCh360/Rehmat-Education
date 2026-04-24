@@ -15,6 +15,7 @@ export type FilterVisibilitySettings = {
 
 const SETTINGS_KEY = "agent-filter-visibility";
 const FILTER_VISIBILITY_CACHE_TAG = "agent-filter-visibility";
+let memoryVisibilityCache: { value: FilterVisibilitySettings; expiresAt: number } | null = null;
 
 export const defaultFilterVisibilitySettings: FilterVisibilitySettings = {
   search: true,
@@ -29,6 +30,10 @@ export const defaultFilterVisibilitySettings: FilterVisibilitySettings = {
 };
 
 export async function getFilterVisibilitySettings() {
+  if (memoryVisibilityCache && Date.now() < memoryVisibilityCache.expiresAt) {
+    return memoryVisibilityCache.value;
+  }
+
   const loader = async () => {
     const appSetting = (db as unknown as { appSetting?: { findUnique: (args: unknown) => Promise<{ valueJson: string } | null>; upsert: (args: unknown) => Promise<unknown> } }).appSetting;
 
@@ -50,12 +55,24 @@ export async function getFilterVisibilitySettings() {
   };
 
   try {
-    return await unstable_cache(loader, [FILTER_VISIBILITY_CACHE_TAG], {
+    const result = await unstable_cache(loader, [FILTER_VISIBILITY_CACHE_TAG], {
       revalidate: 300,
       tags: [FILTER_VISIBILITY_CACHE_TAG]
     })();
+
+    memoryVisibilityCache = {
+      value: result,
+      expiresAt: Date.now() + 60_000
+    };
+
+    return result;
   } catch {
-    return await loader();
+    const result = await loader();
+    memoryVisibilityCache = {
+      value: result,
+      expiresAt: Date.now() + 60_000
+    };
+    return result;
   }
 }
 
@@ -89,6 +106,11 @@ export async function setFilterVisibilitySettings(nextSettings: FilterVisibility
   } catch {
     // No-op in contexts where Next cache is unavailable.
   }
+
+  memoryVisibilityCache = {
+    value: normalized,
+    expiresAt: Date.now() + 60_000
+  };
 
   return normalized;
 }

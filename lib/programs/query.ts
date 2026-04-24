@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 import { db } from "@/lib/db";
-import { withProgramFiltersCache, withProgramTotalCountCache } from "@/lib/programs/cache";
+import { withProgramFiltersCache, withProgramListCache, withProgramTotalCountCache } from "@/lib/programs/cache";
 import { getRepresentativeValue, normalizeFilterKey, normalizeText } from "@/lib/programs/normalize";
 
 export type ProgramListParams = {
@@ -112,24 +112,41 @@ export async function getPrograms(params: ProgramListParams) {
         ? [{ discountedTuitionFee: "desc" as const }, { programName: "asc" as const }]
         : [{ updatedAt: "desc" as const }];
 
-  const [items, total] = await Promise.all([
-    db.program.findMany({
-      select: PROGRAM_LIST_SELECT,
-      where,
-      orderBy,
-      skip: (page - 1) * pageSize,
-      take: pageSize
-    }),
-    hasAnyFilter ? db.program.count({ where }) : withProgramTotalCountCache(() => db.program.count())
-  ]);
-
-  return {
-    items: items as ProgramListItem[],
-    total,
+  const cacheKey = JSON.stringify({
     page,
     pageSize,
-    totalPages: Math.max(Math.ceil(total / pageSize), 1)
-  };
+    search,
+    university: params.university || "",
+    programName: params.programName || "",
+    degree: params.degree || "",
+    language: params.language || "",
+    campus: params.campus || "",
+    quota: params.quota || "",
+    minPrice: Number.isFinite(minPrice) ? minPrice : null,
+    maxPrice: Number.isFinite(maxPrice) ? maxPrice : null,
+    sort: params.sort || "updated"
+  });
+
+  return withProgramListCache(cacheKey, async () => {
+    const [items, total] = await Promise.all([
+      db.program.findMany({
+        select: PROGRAM_LIST_SELECT,
+        where,
+        orderBy,
+        skip: (page - 1) * pageSize,
+        take: pageSize
+      }),
+      hasAnyFilter ? db.program.count({ where }) : withProgramTotalCountCache(() => db.program.count())
+    ]);
+
+    return {
+      items: items as ProgramListItem[],
+      total,
+      page,
+      pageSize,
+      totalPages: Math.max(Math.ceil(total / pageSize), 1)
+    };
+  });
 }
 
 export async function getProgramFilters() {
