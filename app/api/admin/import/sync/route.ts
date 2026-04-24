@@ -4,6 +4,7 @@ import { z } from "zod";
 import { requireApiAdmin } from "@/lib/auth/session";
 import { buildImportDiff, commitImport, parseImportPayload } from "@/lib/programs/import";
 import { revalidateProgramCatalogCache } from "@/lib/programs/cache";
+import { primeProgramCatalogSnapshotFromRawRecords } from "@/lib/programs/catalog-cache";
 import { getImportSettings } from "@/lib/programs/import-settings";
 import { fetchPartnerProgramsPayload } from "@/lib/programs/partner-source";
 
@@ -35,7 +36,8 @@ export async function POST(request: Request) {
     const diff = await buildImportDiff(records);
 
     await commitImport(records, "replace");
-    revalidateProgramCatalogCache();
+    revalidateProgramCatalogCache({ clearSnapshot: false });
+    await primeProgramCatalogSnapshotFromRawRecords(records);
 
     return NextResponse.json({
       ok: true,

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireApiAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { revalidateProgramCatalogCache } from "@/lib/programs/cache";
+import { upsertProgramInCatalogSnapshot } from "@/lib/programs/catalog-cache";
 import { getPrograms } from "@/lib/programs/query";
 import { programFormSchema, toProgramMutationInput } from "@/lib/programs/schemas";
 
@@ -50,7 +51,8 @@ export async function POST(request: Request) {
     data: input
   });
 
-  revalidateProgramCatalogCache();
+  revalidateProgramCatalogCache({ clearSnapshot: false });
+  await upsertProgramInCatalogSnapshot(program);
 
   return NextResponse.json(program, { status: 201 });
 }

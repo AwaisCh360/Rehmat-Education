@@ -1,0 +1,16 @@
+============================================================
+                 REHMAT EDUCATION - ADMIN LOGIN
+============================================================
+
+Website:
+https://rehmat-education.vercel.app/
+
+Admin Credentials:
+Email    : admin@rehmatedu.local
+Password : AdminPass123!
+
+------------------------------------------------------------
+Notes:
+- Use these credentials on the live login page.
+- If login fails, check Vercel Environment Variables and redeploy.
+------------------------------------------------------------

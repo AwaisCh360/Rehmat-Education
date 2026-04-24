@@ -1,7 +1,7 @@
-import { Prisma } from "@prisma/client";
+import type { Program } from "@prisma/client";
 
-import { db } from "@/lib/db";
-import { withProgramFiltersCache, withProgramListCache, withProgramTotalCountCache } from "@/lib/programs/cache";
+import { withProgramFiltersCache, withProgramListCache } from "@/lib/programs/cache";
+import { getProgramCatalogSnapshot } from "@/lib/programs/catalog-cache";
 import { getRepresentativeValue, normalizeFilterKey, normalizeText } from "@/lib/programs/normalize";
 
 export type ProgramListParams = {
@@ -25,13 +25,6 @@ export type FilterOption = {
   count: number;
 };
 
-type ProgramFacetRow = {
-  facet: "universities" | "programs" | "degrees" | "languages" | "campuses";
-  value: string;
-  label: string | null;
-  count: number;
-};
-
 export type ProgramListItem = {
   id: string;
   universityName: string;
@@ -52,95 +45,61 @@ export type ProgramListItem = {
   currencyType: string | null;
 };
 
-const PROGRAM_LIST_SELECT = {
-  id: true,
-  universityName: true,
-  programName: true,
-  universityNameCn: true,
-  programNameCn: true,
-  programDegree: true,
-  language: true,
-  campus: true,
-  discountedTuitionFee: true,
-  tuitionFee: true,
-  cashPaymentFee: true,
-  depositPrice: true,
-  prepSchoolFee: true,
-  academicYear: true,
-  semester: true,
-  quotaFull: true,
-  currencyType: true
-} satisfies Prisma.ProgramSelect;
-
 export async function getPrograms(params: ProgramListParams) {
   const page = Math.max(Number(params.page ?? "1") || 1, 1);
   const pageSize = Math.min(Math.max(Number(params.pageSize ?? "18") || 18, 1), 50);
   const search = normalizeText(params.search);
-  const minPrice = params.minPrice ? Number(params.minPrice) : null;
-  const maxPrice = params.maxPrice ? Number(params.maxPrice) : null;
-  const hasAnyFilter = Boolean(
-    params.university ||
-      params.programName ||
-      params.degree ||
-      params.language ||
-      params.campus ||
-      params.quota ||
-      search ||
-      Number.isFinite(minPrice) ||
-      Number.isFinite(maxPrice)
-  );
-
-  const where: Prisma.ProgramWhereInput = {
-    AND: [
-      params.university ? { universityKey: normalizeFilterKey(params.university) } : {},
-      params.programName ? { programKey: normalizeFilterKey(params.programName) } : {},
-      params.degree ? { degreeKey: normalizeFilterKey(params.degree) } : {},
-      params.language ? { languageKey: normalizeFilterKey(params.language) } : {},
-      params.campus ? { campusKey: normalizeFilterKey(params.campus) } : {},
-      params.quota === "available" ? { quotaFull: false } : {},
-      params.quota === "full" ? { quotaFull: true } : {},
-      search ? { searchText: { contains: search } } : {},
-      Number.isFinite(minPrice) ? { discountedTuitionFee: { gte: minPrice ?? undefined } } : {},
-      Number.isFinite(maxPrice) ? { discountedTuitionFee: { lte: maxPrice ?? undefined } } : {}
-    ]
-  };
-
-  const orderBy =
-    params.sort === "price-asc"
-      ? [{ discountedTuitionFee: "asc" as const }, { programName: "asc" as const }]
-      : params.sort === "price-desc"
-        ? [{ discountedTuitionFee: "desc" as const }, { programName: "asc" as const }]
-        : [{ updatedAt: "desc" as const }];
+  const minPrice = parseOptionalNumber(params.minPrice);
+  const maxPrice = parseOptionalNumber(params.maxPrice);
+  const university = params.university ? normalizeFilterKey(params.university) : "";
+  const programName = params.programName ? normalizeFilterKey(params.programName) : "";
+  const degree = params.degree ? normalizeFilterKey(params.degree) : "";
+  const language = params.language ? normalizeFilterKey(params.language) : "";
+  const campus = params.campus ? normalizeFilterKey(params.campus) : "";
+  const quota = params.quota === "available" || params.quota === "full" ? params.quota : "";
+  const sort = params.sort === "price-asc" || params.sort === "price-desc" ? params.sort : "updated";
 
   const cacheKey = JSON.stringify({
     page,
     pageSize,
     search,
-    university: params.university || "",
-    programName: params.programName || "",
-    degree: params.degree || "",
-    language: params.language || "",
-    campus: params.campus || "",
-    quota: params.quota || "",
+    university,
+    programName,
+    degree,
+    language,
+    campus,
+    quota,
     minPrice: Number.isFinite(minPrice) ? minPrice : null,
     maxPrice: Number.isFinite(maxPrice) ? maxPrice : null,
-    sort: params.sort || "updated"
+    sort
   });
 
   return withProgramListCache(cacheKey, async () => {
-    const [items, total] = await Promise.all([
-      db.program.findMany({
-        select: PROGRAM_LIST_SELECT,
-        where,
-        orderBy,
-        skip: (page - 1) * pageSize,
-        take: pageSize
-      }),
-      hasAnyFilter ? db.program.count({ where }) : withProgramTotalCountCache(() => db.program.count())
-    ]);
+    const catalog = await getProgramCatalogSnapshot();
+    const source =
+      sort === "price-asc"
+        ? catalog.byPriceAsc
+        : sort === "price-desc"
+          ? catalog.byPriceDesc
+          : catalog.byUpdated;
+    const filtered = source.filter((program) =>
+      matchesProgram(program, {
+        search,
+        university,
+        programName,
+        degree,
+        language,
+        campus,
+        quota,
+        minPrice,
+        maxPrice
+      })
+    );
+    const total = filtered.length;
+    const items = filtered.slice((page - 1) * pageSize, page * pageSize).map(toProgramListItem);
 
     return {
-      items: items as ProgramListItem[],
+      items,
       total,
       page,
       pageSize,
@@ -151,77 +110,54 @@ export async function getPrograms(params: ProgramListParams) {
 
 export async function getProgramFilters() {
   return withProgramFiltersCache(async () => {
-    const rows = await db.$queryRaw<ProgramFacetRow[]>`
-      SELECT 'universities'::text AS facet, "universityKey" AS value, MIN("universityName") AS label, COUNT(*)::int AS count
-      FROM "Program"
-      WHERE "universityKey" <> ''
-      GROUP BY "universityKey"
-
-      UNION ALL
-
-      SELECT 'programs'::text AS facet, "programKey" AS value, MIN("programName") AS label, COUNT(*)::int AS count
-      FROM "Program"
-      WHERE "programKey" <> ''
-      GROUP BY "programKey"
-
-      UNION ALL
-
-      SELECT 'degrees'::text AS facet, "degreeKey" AS value, MIN("programDegree") AS label, COUNT(*)::int AS count
-      FROM "Program"
-      WHERE "degreeKey" <> ''
-      GROUP BY "degreeKey"
-
-      UNION ALL
-
-      SELECT 'languages'::text AS facet, "languageKey" AS value, MIN("language") AS label, COUNT(*)::int AS count
-      FROM "Program"
-      WHERE "languageKey" <> ''
-      GROUP BY "languageKey"
-
-      UNION ALL
-
-      SELECT 'campuses'::text AS facet, "campusKey" AS value, MIN("campus") AS label, COUNT(*)::int AS count
-      FROM "Program"
-      WHERE "campusKey" <> ''
-      GROUP BY "campusKey"
-    `;
-
-    const grouped = {
-      universities: [] as ProgramFacetRow[],
-      programs: [] as ProgramFacetRow[],
-      degrees: [] as ProgramFacetRow[],
-      languages: [] as ProgramFacetRow[],
-      campuses: [] as ProgramFacetRow[]
-    };
-
-    for (const row of rows) {
-      grouped[row.facet].push(row);
-    }
+    const catalog = await getProgramCatalogSnapshot();
 
     return {
-      universities: mapFacetOptions(grouped.universities),
-      programs: mapFacetOptions(grouped.programs),
-      degrees: mapFacetOptions(grouped.degrees),
-      languages: mapFacetOptions(grouped.languages),
-      campuses: mapFacetOptions(grouped.campuses)
+      universities: buildFacetOptions(catalog.programs, "universityKey", "universityName"),
+      programs: buildFacetOptions(catalog.programs, "programKey", "programName"),
+      degrees: buildFacetOptions(catalog.programs, "degreeKey", "programDegree"),
+      languages: buildFacetOptions(catalog.programs, "languageKey", "language"),
+      campuses: buildFacetOptions(catalog.programs, "campusKey", "campus")
     };
   });
 }
 
-function mapFacetOptions(rows: ProgramFacetRow[], fallback = "Not specified") {
-  return rows
-    .map((row) => ({
-      value: row.value,
-      label: getRepresentativeValue([row.label ?? fallback]) ?? fallback,
-      count: Number(row.count) || 0
+function buildFacetOptions<K extends keyof Program>(programs: Program[], valueKey: K, labelKey: K, fallback = "Not specified") {
+  const facets = new Map<string, { count: number; labels: string[] }>();
+
+  for (const program of programs) {
+    const value = String(program[valueKey] ?? "");
+
+    if (!value) {
+      continue;
+    }
+
+    const label = typeof program[labelKey] === "string" && program[labelKey] ? String(program[labelKey]) : fallback;
+    const current = facets.get(value);
+
+    if (current) {
+      current.count += 1;
+      current.labels.push(label);
+    } else {
+      facets.set(value, {
+        count: 1,
+        labels: [label]
+      });
+    }
+  }
+
+  return [...facets.entries()]
+    .map(([value, facet]) => ({
+      value,
+      label: getRepresentativeValue(facet.labels) ?? fallback,
+      count: facet.count
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
 }
 
 export async function getProgramById(id: string) {
-  return db.program.findUnique({
-    where: { id }
-  });
+  const catalog = await getProgramCatalogSnapshot();
+  return catalog.byId.get(id) ?? null;
 }
 
 export async function getProgramsByIds(ids: string[]) {
@@ -229,14 +165,68 @@ export async function getProgramsByIds(ids: string[]) {
     return [];
   }
 
-  const rows = await db.program.findMany({
-    where: {
-      id: {
-        in: ids
-      }
-    }
-  });
+  const catalog = await getProgramCatalogSnapshot();
+  return ids.map((id) => catalog.byId.get(id)).filter((row): row is Program => Boolean(row));
+}
 
-  const byId = new Map(rows.map((row) => [row.id, row]));
-  return ids.map((id) => byId.get(id)).filter((row): row is (typeof rows)[number] => Boolean(row));
+type ProgramMatchCriteria = {
+  search: string;
+  university: string;
+  programName: string;
+  degree: string;
+  language: string;
+  campus: string;
+  quota: "" | "available" | "full";
+  minPrice: number | null;
+  maxPrice: number | null;
+};
+
+function matchesProgram(program: Program, criteria: ProgramMatchCriteria) {
+  if (criteria.university && program.universityKey !== criteria.university) return false;
+  if (criteria.programName && program.programKey !== criteria.programName) return false;
+  if (criteria.degree && program.degreeKey !== criteria.degree) return false;
+  if (criteria.language && program.languageKey !== criteria.language) return false;
+  if (criteria.campus && program.campusKey !== criteria.campus) return false;
+  if (criteria.quota === "available" && program.quotaFull) return false;
+  if (criteria.quota === "full" && !program.quotaFull) return false;
+  if (criteria.search && !program.searchText.includes(criteria.search)) return false;
+
+  if (Number.isFinite(criteria.minPrice) || Number.isFinite(criteria.maxPrice)) {
+    if (typeof program.discountedTuitionFee !== "number") return false;
+    if (Number.isFinite(criteria.minPrice) && program.discountedTuitionFee < (criteria.minPrice ?? 0)) return false;
+    if (Number.isFinite(criteria.maxPrice) && program.discountedTuitionFee > (criteria.maxPrice ?? 0)) return false;
+  }
+
+  return true;
+}
+
+function parseOptionalNumber(value: string | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function toProgramListItem(program: Program): ProgramListItem {
+  return {
+    id: program.id,
+    universityName: program.universityName,
+    programName: program.programName,
+    universityNameCn: program.universityNameCn,
+    programNameCn: program.programNameCn,
+    programDegree: program.programDegree,
+    language: program.language,
+    campus: program.campus,
+    discountedTuitionFee: program.discountedTuitionFee,
+    tuitionFee: program.tuitionFee,
+    cashPaymentFee: program.cashPaymentFee,
+    depositPrice: program.depositPrice,
+    prepSchoolFee: program.prepSchoolFee,
+    academicYear: program.academicYear,
+    semester: program.semester,
+    quotaFull: program.quotaFull,
+    currencyType: program.currencyType
+  };
 }

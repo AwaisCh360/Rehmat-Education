@@ -123,6 +123,13 @@ npm install
 npm run start
 ```
 
+### Performance env tuning (recommended)
+
+Add these optional variables in Vercel to tune Prisma pool behavior for Supabase pooler:
+
+- `PRISMA_CONNECTION_LIMIT` (default used by app: `3`)
+- `PRISMA_POOL_TIMEOUT` (default used by app: `10`)
+
 ## Seeded credentials
 
 - Admin: `admin@rehmatedu.local` / `AdminPass123!`
@@ -141,6 +148,17 @@ npm run start
 - PDF routes run on Node runtime and require an authenticated session.
 - The selected-program PDF action uses direct navigation (instead of popup opening) to avoid browser popup blocking.
 - If PDF still fails, check Vercel Function logs for `/api/programs/pdf` or `/api/programs/[id]/pdf`.
+
+### Filtering feels slow
+
+- Program list, filter options, and total-count queries are cache-optimized.
+- Caches are automatically invalidated after program create/update/delete/import.
+- Warm requests should be significantly faster than cold requests.
+- Run local profiling with:
+
+```bash
+npx tsx scripts/profile-filtering.ts
+```
 
 ## Notes
 

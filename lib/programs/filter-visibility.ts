@@ -15,6 +15,7 @@ export type FilterVisibilitySettings = {
 
 const SETTINGS_KEY = "agent-filter-visibility";
 const FILTER_VISIBILITY_CACHE_TAG = "agent-filter-visibility";
+const VISIBILITY_MEMORY_TTL_MS = 10 * 60_000;
 let memoryVisibilityCache: { value: FilterVisibilitySettings; expiresAt: number } | null = null;
 
 export const defaultFilterVisibilitySettings: FilterVisibilitySettings = {
@@ -29,9 +30,17 @@ export const defaultFilterVisibilitySettings: FilterVisibilitySettings = {
   sort: true
 };
 
-export async function getFilterVisibilitySettings() {
-  if (memoryVisibilityCache && Date.now() < memoryVisibilityCache.expiresAt) {
+export async function getFilterVisibilitySettings(options: { fresh?: boolean } = {}) {
+  if (!options.fresh && memoryVisibilityCache && Date.now() < memoryVisibilityCache.expiresAt) {
     return memoryVisibilityCache.value;
+  }
+
+  if (!options.fresh && process.env.FILTER_VISIBILITY_SOURCE !== "database") {
+    memoryVisibilityCache = {
+      value: defaultFilterVisibilitySettings,
+      expiresAt: Date.now() + VISIBILITY_MEMORY_TTL_MS
+    };
+    return defaultFilterVisibilitySettings;
   }
 
   const loader = async () => {
@@ -62,7 +71,7 @@ export async function getFilterVisibilitySettings() {
 
     memoryVisibilityCache = {
       value: result,
-      expiresAt: Date.now() + 60_000
+      expiresAt: Date.now() + VISIBILITY_MEMORY_TTL_MS
     };
 
     return result;
@@ -70,7 +79,7 @@ export async function getFilterVisibilitySettings() {
     const result = await loader();
     memoryVisibilityCache = {
       value: result,
-      expiresAt: Date.now() + 60_000
+      expiresAt: Date.now() + VISIBILITY_MEMORY_TTL_MS
     };
     return result;
   }
@@ -109,7 +118,7 @@ export async function setFilterVisibilitySettings(nextSettings: FilterVisibility
 
   memoryVisibilityCache = {
     value: normalized,
-    expiresAt: Date.now() + 60_000
+    expiresAt: Date.now() + VISIBILITY_MEMORY_TTL_MS
   };
 
   return normalized;

@@ -17,8 +17,10 @@ function getPrismaDatabaseUrl() {
     const isSupabasePooler = url.hostname.endsWith(".pooler.supabase.com");
 
     // In serverless, use Supabase transaction pooler and low connection concurrency.
-    if (isSupabasePooler && url.port === "5432") {
-      url.port = "6543";
+    if (isSupabasePooler) {
+      if (url.port === "5432") {
+        url.port = "6543";
+      }
       if (!url.searchParams.has("pgbouncer")) {
         url.searchParams.set("pgbouncer", "true");
       }

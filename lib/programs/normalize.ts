@@ -1,6 +1,8 @@
 const DIACRITICS_PATTERN = /[\u0300-\u036f]/g;
 const SUSPICIOUS_MOJIBAKE_PATTERN = /[þÿÃØÙÆÐ]/g;
+const SUSPICIOUS_MOJIBAKE_SCAN_PATTERN = /[þÿÃØÙÆÐ]/;
 const CONTROL_CHARS_PATTERN = /[\u0000-\u001F]/g;
+const CONTROL_CHARS_SCAN_PATTERN = /[\u0000-\u001F]/;
 const ARABIC_SCRIPT_PATTERN = /[\u0600-\u06FF]/g;
 
 export function normalizeText(value: string | null | undefined) {
@@ -65,6 +67,10 @@ export function repairPotentialMojibake(value: string) {
   const input = value.replace(/\s+/g, " ").trim();
 
   if (!input) {
+    return input;
+  }
+
+  if (!SUSPICIOUS_MOJIBAKE_SCAN_PATTERN.test(input) && !CONTROL_CHARS_SCAN_PATTERN.test(input)) {
     return input;
   }
 

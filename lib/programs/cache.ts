@@ -1,5 +1,7 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 
+import { clearProgramCatalogSnapshot, PROGRAM_CATALOG_CACHE_TAG } from "@/lib/programs/catalog-cache";
+
 export const PROGRAM_FILTERS_CACHE_TAG = "program-filter-options";
 export const PROGRAM_TOTAL_COUNT_CACHE_TAG = "program-total-count";
 export const PROGRAM_LIST_CACHE_TAG = "program-list";
@@ -60,7 +62,7 @@ export async function withProgramFiltersCache<T>(loader: () => Promise<T>) {
 }
 
 export function revalidateProgramFiltersCache() {
-  revalidateTag(PROGRAM_FILTERS_CACHE_TAG);
+  safeRevalidateTag(PROGRAM_FILTERS_CACHE_TAG);
   clearMemoryCacheByPrefix(`${PROGRAM_FILTERS_CACHE_TAG}:`);
 }
 
@@ -110,12 +112,24 @@ export async function withProgramListCache<T>(cacheKey: string, loader: () => Pr
   }
 }
 
-export function revalidateProgramCatalogCache() {
-  revalidateTag(PROGRAM_FILTERS_CACHE_TAG);
-  revalidateTag(PROGRAM_TOTAL_COUNT_CACHE_TAG);
-  revalidateTag(PROGRAM_LIST_CACHE_TAG);
+export function revalidateProgramCatalogCache(options: { clearSnapshot?: boolean } = {}) {
+  safeRevalidateTag(PROGRAM_CATALOG_CACHE_TAG);
+  safeRevalidateTag(PROGRAM_FILTERS_CACHE_TAG);
+  safeRevalidateTag(PROGRAM_TOTAL_COUNT_CACHE_TAG);
+  safeRevalidateTag(PROGRAM_LIST_CACHE_TAG);
 
+  if (options.clearSnapshot ?? true) {
+    clearProgramCatalogSnapshot();
+  }
   clearMemoryCacheByPrefix(`${PROGRAM_FILTERS_CACHE_TAG}:`);
   clearMemoryCacheByPrefix(`${PROGRAM_TOTAL_COUNT_CACHE_TAG}:`);
   clearMemoryCacheByPrefix(`${PROGRAM_LIST_CACHE_TAG}:`);
+}
+
+function safeRevalidateTag(tag: string) {
+  try {
+    revalidateTag(tag);
+  } catch {
+    // No-op in scripts/tests where the Next.js cache runtime is unavailable.
+  }
 }

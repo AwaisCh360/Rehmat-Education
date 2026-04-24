@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireApiAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { revalidateProgramCatalogCache } from "@/lib/programs/cache";
+import { mergeProgramCatalogSnapshotFromRawRecords, primeProgramCatalogSnapshotFromRawRecords } from "@/lib/programs/catalog-cache";
 import { commitImport, parseImportPayload } from "@/lib/programs/import";
 import { importCommitSchema } from "@/lib/programs/schemas";
 
@@ -33,7 +34,12 @@ export async function POST(request: Request) {
   try {
     const records = parseImportPayload(session.payloadJson);
     await commitImport(records, parsed.data.mode);
-    revalidateProgramCatalogCache();
+    revalidateProgramCatalogCache({ clearSnapshot: false });
+    if (parsed.data.mode === "replace") {
+      await primeProgramCatalogSnapshotFromRawRecords(records);
+    } else {
+      await mergeProgramCatalogSnapshotFromRawRecords(records);
+    }
     await db.importSession.update({
       where: {
         id: session.id

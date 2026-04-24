@@ -13,7 +13,7 @@ export default async function AdminSettingsPage() {
   await requireAdmin();
   try {
     const [initialFilterSettings, initialPdfSettings, initialImportSettings, pendingRequests, agents, revokedAgentIds] = await Promise.all([
-      getFilterVisibilitySettings(),
+      getFilterVisibilitySettings({ fresh: true }),
       getPdfVisibilitySettings(),
       getImportSettings(),
       db.agentSignupRequest.findMany({
