@@ -110,7 +110,7 @@ export function ProgramGrid({ programs }: { programs: ProgramListItem[] }) {
                   <TableHead>Cash</TableHead>
                   <TableHead>Deposit</TableHead>
                   <TableHead>Prep School</TableHead>
-                  <TableHead>Year</TableHead>
+                  <TableHead className="whitespace-nowrap">Year</TableHead>
                   <TableHead>Semester</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Details</TableHead>
@@ -156,7 +156,7 @@ export function ProgramGrid({ programs }: { programs: ProgramListItem[] }) {
                       <TableCell>{formatCurrency(program.cashPaymentFee, currency)}</TableCell>
                       <TableCell>{formatCurrency(program.depositPrice, currency)}</TableCell>
                       <TableCell>{formatCurrency(program.prepSchoolFee, currency)}</TableCell>
-                      <TableCell>{formatNullable(program.academicYear)}</TableCell>
+                      <TableCell className="whitespace-nowrap">{formatNullable(program.academicYear)}</TableCell>
                       <TableCell>{formatNullable(program.semester)}</TableCell>
                       <TableCell>
                         <ProgramStatusBadge quotaFull={program.quotaFull} />
