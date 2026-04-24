@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { revalidateTag, unstable_cache } from "next/cache";
 
 export type FilterVisibilitySettings = {
   search: boolean;
@@ -13,6 +14,7 @@ export type FilterVisibilitySettings = {
 };
 
 const SETTINGS_KEY = "agent-filter-visibility";
+const FILTER_VISIBILITY_CACHE_TAG = "agent-filter-visibility";
 
 export const defaultFilterVisibilitySettings: FilterVisibilitySettings = {
   search: true,
@@ -27,23 +29,34 @@ export const defaultFilterVisibilitySettings: FilterVisibilitySettings = {
 };
 
 export async function getFilterVisibilitySettings() {
-  const appSetting = (db as unknown as { appSetting?: { findUnique: (args: unknown) => Promise<{ valueJson: string } | null>; upsert: (args: unknown) => Promise<unknown> } }).appSetting;
+  const loader = async () => {
+    const appSetting = (db as unknown as { appSetting?: { findUnique: (args: unknown) => Promise<{ valueJson: string } | null>; upsert: (args: unknown) => Promise<unknown> } }).appSetting;
 
-  if (!appSetting) {
-    return defaultFilterVisibilitySettings;
-  }
-
-  const setting = await appSetting.findUnique({
-    where: {
-      key: SETTINGS_KEY
+    if (!appSetting) {
+      return defaultFilterVisibilitySettings;
     }
-  });
 
-  if (!setting) {
-    return defaultFilterVisibilitySettings;
+    const setting = await appSetting.findUnique({
+      where: {
+        key: SETTINGS_KEY
+      }
+    });
+
+    if (!setting) {
+      return defaultFilterVisibilitySettings;
+    }
+
+    return normalizeVisibilitySettings(setting.valueJson);
+  };
+
+  try {
+    return await unstable_cache(loader, [FILTER_VISIBILITY_CACHE_TAG], {
+      revalidate: 300,
+      tags: [FILTER_VISIBILITY_CACHE_TAG]
+    })();
+  } catch {
+    return await loader();
   }
-
-  return normalizeVisibilitySettings(setting.valueJson);
 }
 
 export async function setFilterVisibilitySettings(nextSettings: FilterVisibilitySettings) {
@@ -70,6 +83,12 @@ export async function setFilterVisibilitySettings(nextSettings: FilterVisibility
       valueJson: JSON.stringify(normalized)
     }
   });
+
+  try {
+    revalidateTag(FILTER_VISIBILITY_CACHE_TAG);
+  } catch {
+    // No-op in contexts where Next cache is unavailable.
+  }
 
   return normalized;
 }

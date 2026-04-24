@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { requireApiAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db";
-import { revalidateProgramFiltersCache } from "@/lib/programs/cache";
+import { revalidateProgramCatalogCache } from "@/lib/programs/cache";
 import { getPrograms } from "@/lib/programs/query";
 import { programFormSchema, toProgramMutationInput } from "@/lib/programs/schemas";
 
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     data: input
   });
 
-  revalidateProgramFiltersCache();
+  revalidateProgramCatalogCache();
 
   return NextResponse.json(program, { status: 201 });
 }

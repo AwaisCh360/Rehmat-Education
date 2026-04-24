@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 import { db } from "@/lib/db";
-import { withProgramFiltersCache } from "@/lib/programs/cache";
+import { withProgramFiltersCache, withProgramTotalCountCache } from "@/lib/programs/cache";
 import { getRepresentativeValue, normalizeFilterKey, normalizeText } from "@/lib/programs/normalize";
 
 export type ProgramListParams = {
@@ -22,6 +22,13 @@ export type ProgramListParams = {
 export type FilterOption = {
   value: string;
   label: string;
+  count: number;
+};
+
+type ProgramFacetRow = {
+  facet: "universities" | "programs" | "degrees" | "languages" | "campuses";
+  value: string;
+  label: string | null;
   count: number;
 };
 
@@ -71,6 +78,17 @@ export async function getPrograms(params: ProgramListParams) {
   const search = normalizeText(params.search);
   const minPrice = params.minPrice ? Number(params.minPrice) : null;
   const maxPrice = params.maxPrice ? Number(params.maxPrice) : null;
+  const hasAnyFilter = Boolean(
+    params.university ||
+      params.programName ||
+      params.degree ||
+      params.language ||
+      params.campus ||
+      params.quota ||
+      search ||
+      Number.isFinite(minPrice) ||
+      Number.isFinite(maxPrice)
+  );
 
   const where: Prisma.ProgramWhereInput = {
     AND: [
@@ -102,7 +120,7 @@ export async function getPrograms(params: ProgramListParams) {
       skip: (page - 1) * pageSize,
       take: pageSize
     }),
-    db.program.count({ where })
+    hasAnyFilter ? db.program.count({ where }) : withProgramTotalCountCache(() => db.program.count())
   ]);
 
   return {
@@ -116,54 +134,69 @@ export async function getPrograms(params: ProgramListParams) {
 
 export async function getProgramFilters() {
   return withProgramFiltersCache(async () => {
-    const rows = await db.program.findMany({
-      select: {
-        universityKey: true,
-        universityName: true,
-        programKey: true,
-        programName: true,
-        degreeKey: true,
-        programDegree: true,
-        languageKey: true,
-        language: true,
-        campusKey: true,
-        campus: true
-      }
-    });
+    const rows = await db.$queryRaw<ProgramFacetRow[]>`
+      SELECT 'universities'::text AS facet, "universityKey" AS value, MIN("universityName") AS label, COUNT(*)::int AS count
+      FROM "Program"
+      WHERE "universityKey" <> ''
+      GROUP BY "universityKey"
+
+      UNION ALL
+
+      SELECT 'programs'::text AS facet, "programKey" AS value, MIN("programName") AS label, COUNT(*)::int AS count
+      FROM "Program"
+      WHERE "programKey" <> ''
+      GROUP BY "programKey"
+
+      UNION ALL
+
+      SELECT 'degrees'::text AS facet, "degreeKey" AS value, MIN("programDegree") AS label, COUNT(*)::int AS count
+      FROM "Program"
+      WHERE "degreeKey" <> ''
+      GROUP BY "degreeKey"
+
+      UNION ALL
+
+      SELECT 'languages'::text AS facet, "languageKey" AS value, MIN("language") AS label, COUNT(*)::int AS count
+      FROM "Program"
+      WHERE "languageKey" <> ''
+      GROUP BY "languageKey"
+
+      UNION ALL
+
+      SELECT 'campuses'::text AS facet, "campusKey" AS value, MIN("campus") AS label, COUNT(*)::int AS count
+      FROM "Program"
+      WHERE "campusKey" <> ''
+      GROUP BY "campusKey"
+    `;
+
+    const grouped = {
+      universities: [] as ProgramFacetRow[],
+      programs: [] as ProgramFacetRow[],
+      degrees: [] as ProgramFacetRow[],
+      languages: [] as ProgramFacetRow[],
+      campuses: [] as ProgramFacetRow[]
+    };
+
+    for (const row of rows) {
+      grouped[row.facet].push(row);
+    }
 
     return {
-      universities: buildOptions(rows, "universityKey", "universityName"),
-      programs: buildOptions(rows, "programKey", "programName"),
-      degrees: buildOptions(rows, "degreeKey", "programDegree", "Not specified"),
-      languages: buildOptions(rows, "languageKey", "language", "Not specified"),
-      campuses: buildOptions(rows, "campusKey", "campus", "Not specified")
+      universities: mapFacetOptions(grouped.universities),
+      programs: mapFacetOptions(grouped.programs),
+      degrees: mapFacetOptions(grouped.degrees),
+      languages: mapFacetOptions(grouped.languages),
+      campuses: mapFacetOptions(grouped.campuses)
     };
   });
 }
 
-function buildOptions<T extends Record<string, string | null>>(rows: T[], keyField: keyof T, valueField: keyof T, fallback = "Not specified") {
-  const grouped = new Map<string, string[]>();
-
-  for (const row of rows) {
-    const key = String(row[keyField] ?? "");
-    const value = row[valueField] ? String(row[valueField]) : fallback;
-
-    if (!key) {
-      continue;
-    }
-
-    if (!grouped.has(key)) {
-      grouped.set(key, []);
-    }
-
-    grouped.get(key)?.push(value);
-  }
-
-  return [...grouped.entries()]
-    .map(([value, labels]) => ({
-      value,
-      label: getRepresentativeValue(labels) ?? fallback,
-      count: labels.length
+function mapFacetOptions(rows: ProgramFacetRow[], fallback = "Not specified") {
+  return rows
+    .map((row) => ({
+      value: row.value,
+      label: getRepresentativeValue([row.label ?? fallback]) ?? fallback,
+      count: Number(row.count) || 0
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
 }

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { requireApiAdmin } from "@/lib/auth/session";
 import { buildImportDiff, commitImport, parseImportPayload } from "@/lib/programs/import";
-import { revalidateProgramFiltersCache } from "@/lib/programs/cache";
+import { revalidateProgramCatalogCache } from "@/lib/programs/cache";
 import { getImportSettings } from "@/lib/programs/import-settings";
 import { fetchPartnerProgramsPayload } from "@/lib/programs/partner-source";
 
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     const diff = await buildImportDiff(records);
 
     await commitImport(records, "replace");
-    revalidateProgramFiltersCache();
+    revalidateProgramCatalogCache();
 
     return NextResponse.json({
       ok: true,
