@@ -7,7 +7,16 @@ import { db } from "@/lib/db";
 const signupSchema = z.object({
   name: z.string().min(2).max(80),
   email: z.string().email(),
-  password: z.string().min(8).max(128)
+  password: z.string().min(8).max(128),
+  country: z.string().trim().min(2).max(80),
+  province: z.string().trim().min(2).max(80),
+  city: z.string().trim().min(2).max(80),
+  phoneNumber: z
+    .string()
+    .trim()
+    .min(7)
+    .max(24)
+    .regex(/^[+0-9\s()-]+$/, "Invalid phone number format")
 });
 
 export async function POST(request: Request) {
@@ -15,7 +24,7 @@ export async function POST(request: Request) {
   const parsed = signupSchema.safeParse(payload);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Please provide a valid name, email, and password." }, { status: 400 });
+    return NextResponse.json({ error: "Please provide valid personal, location, and contact details." }, { status: 400 });
   }
 
   const email = parsed.data.email.toLowerCase();
@@ -49,11 +58,19 @@ export async function POST(request: Request) {
     create: {
       name: parsed.data.name,
       email,
-      passwordHash
+      passwordHash,
+      country: parsed.data.country,
+      province: parsed.data.province,
+      city: parsed.data.city,
+      phoneNumber: parsed.data.phoneNumber
     },
     update: {
       name: parsed.data.name,
       passwordHash,
+      country: parsed.data.country,
+      province: parsed.data.province,
+      city: parsed.data.city,
+      phoneNumber: parsed.data.phoneNumber,
       status: "PENDING",
       reviewedAt: null,
       reviewedById: null

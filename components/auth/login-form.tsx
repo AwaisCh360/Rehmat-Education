@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { AlertCircle, LoaderCircle, LockKeyhole, Mail } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
@@ -12,12 +12,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function LoginForm() {
+export function LoginForm({
+  googleEnabled,
+  initialError = null
+}: {
+  googleEnabled: boolean;
+  initialError?: string | null;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isGooglePending, startGoogleTransition] = useTransition();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError);
+
+  useEffect(() => {
+    setError(initialError);
+  }, [initialError]);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -40,18 +51,46 @@ export function LoginForm() {
     });
   };
 
+  const onGoogleSignIn = () => {
+    setError(null);
+
+    startGoogleTransition(() => {
+      void signIn("google", {
+        callbackUrl: "/"
+      });
+    });
+  };
+
   return (
-    <Card className="w-full max-w-md rounded-2xl border-border/70">
+    <Card className="w-full max-w-md rounded-2xl border-slate-600/40 bg-slate-950/75 text-slate-100 shadow-[0_24px_70px_rgba(2,8,23,0.55)] backdrop-blur">
       <CardHeader className="space-y-3">
-        <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/12 text-primary">
+        <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-sky-400/15 text-sky-300">
           <LockKeyhole className="h-6 w-6" />
         </div>
         <div className="space-y-1">
           <CardTitle className="text-2xl">Sign in</CardTitle>
-          <CardDescription>Use your admin or agent credentials to access the dashboard.</CardDescription>
+          <CardDescription className="text-slate-300">Use your admin or agent credentials to access the dashboard.</CardDescription>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-5">
+        {googleEnabled ? (
+          <>
+            <Button className="w-full" disabled={isPending || isGooglePending} onClick={onGoogleSignIn} type="button" variant="outline">
+              {isGooglePending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <span className="flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold">G</span>}
+              Continue with Google
+            </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-700" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-slate-950 px-2 text-slate-400">or sign in with email</span>
+              </div>
+            </div>
+          </>
+        ) : null}
+
         <form className="space-y-4" onSubmit={onSubmit}>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -70,13 +109,13 @@ export function LoginForm() {
               {error}
             </div>
           ) : null}
-          <Button className="w-full" disabled={isPending} type="submit">
+          <Button className="w-full" disabled={isPending || isGooglePending} type="submit">
             {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             Continue
           </Button>
           <p className="text-center text-sm text-muted-foreground">
             Need an agent account?{" "}
-            <Link className="font-medium text-primary hover:underline" href="/signup">
+            <Link className="font-medium text-sky-300 hover:text-sky-200 hover:underline" href="/signup">
               Submit a request
             </Link>
           </p>

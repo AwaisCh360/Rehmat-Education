@@ -24,6 +24,10 @@ model AgentSignupRequest {
   name         String
   email        String   @unique
   passwordHash String
+  country      String?
+  province     String?
+  city         String?
+  phoneNumber  String?
   status       String   @default("PENDING")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
