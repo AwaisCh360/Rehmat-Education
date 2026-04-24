@@ -13,6 +13,11 @@ export type PendingAgentRequest = {
   id: string;
   name: string;
   email: string;
+  agencyName: string | null;
+  designation: string | null;
+  yearsOfExperience: number | null;
+  website: string | null;
+  postalCode: string | null;
   address: string | null;
   cnic: string | null;
   country: string | null;
@@ -67,6 +72,7 @@ export function AgentApprovalRequests({ initialRequests }: { initialRequests: Pe
                 <TableHead>Email</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Location</TableHead>
+                <TableHead>Professional</TableHead>
                 <TableHead>CNIC</TableHead>
                 <TableHead>Requested</TableHead>
                 <TableHead>Status</TableHead>
@@ -87,6 +93,21 @@ export function AgentApprovalRequests({ initialRequests }: { initialRequests: Pe
                     </TableCell>
                     <TableCell>
                       {[request.city, request.province, request.country].filter(Boolean).join(", ") || "Not provided"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">{request.agencyName || "Not provided"}</div>
+                      <div className="text-xs text-muted-foreground">{request.designation || "No designation"}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {request.yearsOfExperience !== null && request.yearsOfExperience !== undefined
+                          ? `${request.yearsOfExperience} years exp`
+                          : "Experience not provided"}
+                      </div>
+                      <div className="text-xs text-muted-foreground">{request.postalCode || "Postal code not provided"}</div>
+                      {request.website ? (
+                        <a className="text-xs text-primary hover:underline" href={request.website} rel="noreferrer" target="_blank">
+                          {request.website}
+                        </a>
+                      ) : null}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">{request.cnic || "Not provided"}</TableCell>
                     <TableCell>{new Date(request.createdAt).toLocaleString()}</TableCell>

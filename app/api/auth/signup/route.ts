@@ -8,6 +8,11 @@ const signupSchema = z.object({
   name: z.string().min(2).max(80),
   email: z.string().email(),
   password: z.string().min(8).max(128),
+  agencyName: z.string().trim().min(2).max(120),
+  designation: z.string().trim().min(2).max(120),
+  yearsOfExperience: z.coerce.number().int().min(0).max(45),
+  website: z.string().trim().url().optional().or(z.literal("")),
+  postalCode: z.string().trim().min(3).max(20),
   country: z.string().trim().min(2).max(80),
   province: z.string().trim().min(2).max(80),
   city: z.string().trim().min(2).max(80),
@@ -71,7 +76,12 @@ export async function POST(request: Request) {
       city: parsed.data.city,
       address: parsed.data.address,
       cnic: parsed.data.cnic,
-      phoneNumber: parsed.data.phoneNumber
+      phoneNumber: parsed.data.phoneNumber,
+      agencyName: parsed.data.agencyName,
+      designation: parsed.data.designation,
+      yearsOfExperience: parsed.data.yearsOfExperience,
+      website: parsed.data.website || null,
+      postalCode: parsed.data.postalCode
     },
     update: {
       name: parsed.data.name,
@@ -82,6 +92,11 @@ export async function POST(request: Request) {
       address: parsed.data.address,
       cnic: parsed.data.cnic,
       phoneNumber: parsed.data.phoneNumber,
+      agencyName: parsed.data.agencyName,
+      designation: parsed.data.designation,
+      yearsOfExperience: parsed.data.yearsOfExperience,
+      website: parsed.data.website || null,
+      postalCode: parsed.data.postalCode,
       status: "PENDING",
       reviewedAt: null,
       reviewedById: null

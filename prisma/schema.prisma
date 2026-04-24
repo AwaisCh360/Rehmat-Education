@@ -24,6 +24,11 @@ model AgentSignupRequest {
   name         String
   email        String   @unique
   passwordHash String
+  agencyName   String?
+  designation  String?
+  yearsOfExperience Int?
+  website      String?
+  postalCode   String?
   address      String?
   cnic         String?
   country      String?

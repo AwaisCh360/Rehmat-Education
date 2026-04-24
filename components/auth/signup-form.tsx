@@ -24,6 +24,11 @@ export function SignupForm() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [cnic, setCnic] = useState("");
   const [address, setAddress] = useState("");
+  const [agencyName, setAgencyName] = useState("");
+  const [designation, setDesignation] = useState("");
+  const [yearsOfExperience, setYearsOfExperience] = useState("");
+  const [website, setWebsite] = useState("");
+  const [postalCode, setPostalCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -47,7 +52,12 @@ export function SignupForm() {
           city,
           phoneNumber,
           cnic,
-          address
+          address,
+          agencyName,
+          designation,
+          yearsOfExperience,
+          website,
+          postalCode
         })
       });
 
@@ -67,6 +77,11 @@ export function SignupForm() {
       setPhoneNumber("");
       setCnic("");
       setAddress("");
+      setAgencyName("");
+      setDesignation("");
+      setYearsOfExperience("");
+      setWebsite("");
+      setPostalCode("");
       setSuccessMessage(payload.message ?? "Registration request sent. Wait for admin approval before signing in.");
       router.refresh();
     });
@@ -158,6 +173,47 @@ export function SignupForm() {
                   onChange={(event) => setAddress(event.target.value)}
                   placeholder="Street, area, city"
                   value={address}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-700/80 bg-slate-900/70 p-4">
+            <div className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Professional details</div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="agencyName">Agency / Institute name</Label>
+                <Input id="agencyName" onChange={(event) => setAgencyName(event.target.value)} placeholder="Future Path Consultants" value={agencyName} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="designation">Designation</Label>
+                <Input id="designation" onChange={(event) => setDesignation(event.target.value)} placeholder="Senior Admissions Counselor" value={designation} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="yearsOfExperience">Years of experience</Label>
+                <Input
+                  id="yearsOfExperience"
+                  inputMode="numeric"
+                  max="45"
+                  min="0"
+                  onChange={(event) => setYearsOfExperience(event.target.value)}
+                  placeholder="5"
+                  type="number"
+                  value={yearsOfExperience}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="postalCode">Postal code</Label>
+                <Input id="postalCode" onChange={(event) => setPostalCode(event.target.value)} placeholder="54000" value={postalCode} />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="website">Website (optional)</Label>
+                <Input
+                  id="website"
+                  onChange={(event) => setWebsite(event.target.value)}
+                  placeholder="https://youragency.com"
+                  type="url"
+                  value={website}
                 />
               </div>
             </div>
