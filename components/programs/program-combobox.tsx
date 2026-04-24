@@ -22,13 +22,20 @@ export function ProgramCombobox({
 }) {
   const selected = options.find((option) => option.value === value);
   const [open, setOpen] = React.useState(false);
+  const contentRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!open) {
       return;
     }
 
-    const handleScroll = () => {
+    const handleScroll = (event: Event) => {
+      const target = event.target;
+
+      if (target instanceof Node && contentRef.current?.contains(target)) {
+        return;
+      }
+
       setOpen(false);
     };
 
@@ -50,6 +57,7 @@ export function ProgramCombobox({
         align="start"
         avoidCollisions={false}
         className="w-[min(680px,calc(100vw-1.5rem))] p-0"
+        ref={contentRef}
         side="bottom"
         sideOffset={6}
       >
