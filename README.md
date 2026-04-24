@@ -6,7 +6,7 @@ A full-stack Next.js admissions dashboard for browsing and managing university p
 
 - Next.js App Router + TypeScript
 - Tailwind CSS + shadcn-style UI components
-- NextAuth credentials auth
+- NextAuth credentials auth + Google OAuth
 - Prisma + Supabase PostgreSQL
 - Zustand for persisted filters
 - jsPDF export for program PDFs
@@ -30,6 +30,8 @@ cp .env.example .env
 - `DATABASE_URL`: Supabase pooler URL (port 6543)
 - `AUTH_SECRET`: long random value
 - `NEXTAUTH_URL`: `http://localhost:3000`
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: optional, only needed for Google sign-in
+- `GOOGLE_AUTO_CREATE_AGENTS`: set to `true` only if new Google users should become Agents automatically
 
 4. Sync Prisma schema to DB:
 
@@ -98,6 +100,9 @@ npm run prisma:seed
 - `AUTH_SECRET`
 - `AUTH_SECRET_PREVIOUS` (optional, for secret rotation)
 - `NEXTAUTH_URL` (example: `https://your-app.vercel.app`)
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_AUTO_CREATE_AGENTS` (recommended: `false`)
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`
 - `ADMIN_NAME`
@@ -135,6 +140,54 @@ Add these optional variables in Vercel to tune Prisma pool behavior for Supabase
 - Admin: `admin@rehmatedu.local` / `AdminPass123!`
 - Agent: `agent@rehmatedu.local` / `AgentPass123!`
 
+## Google sign-in setup
+
+Google login is optional. Password login keeps working even if Google env vars are empty.
+
+### Access rules
+
+- Existing approved users can sign in with Google if their Google email matches their dashboard email.
+- `ADMIN_EMAIL` can sign in with Google as Admin; the account is auto-created if it does not exist yet.
+- New Google users are blocked by default.
+- To let new Google users become Agents automatically, set `GOOGLE_AUTO_CREATE_AGENTS="true"`.
+
+### Create Google OAuth credentials
+
+1. Open Google Cloud Console.
+2. Go to APIs & Services -> OAuth consent screen and configure the app.
+3. Go to APIs & Services -> Credentials.
+4. Create Credentials -> OAuth client ID.
+5. Application type: Web application.
+6. Add authorized JavaScript origins:
+
+```text
+http://localhost:3000
+https://your-app.vercel.app
+```
+
+7. Add authorized redirect URIs:
+
+```text
+http://localhost:3000/api/auth/callback/google
+https://your-app.vercel.app/api/auth/callback/google
+```
+
+8. Copy the Client ID and Client secret into `.env` locally:
+
+```bash
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+GOOGLE_AUTO_CREATE_AGENTS="false"
+```
+
+9. Restart the dev server:
+
+```bash
+npm run dev -- --hostname 127.0.0.1 --port 3000
+```
+
+For Vercel, add the same Google variables in Project Settings -> Environment Variables, then redeploy.
+
 ## Vercel troubleshooting
 
 ### Login not working with Vercel env credentials
@@ -142,6 +195,12 @@ Add these optional variables in Vercel to tune Prisma pool behavior for Supabase
 - Confirm `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `AGENT_EMAIL`, and `AGENT_PASSWORD` are set in Vercel for the same environment (Production/Preview).
 - Redeploy after changing env variables.
 - The credentials flow now auto-syncs default admin/agent accounts from env on successful login attempts, so stale DB password hashes are repaired automatically.
+
+### Google login shows access denied
+
+- Confirm the Google email exactly matches an approved dashboard user or `ADMIN_EMAIL`.
+- If you want new Google users to enter as Agents, set `GOOGLE_AUTO_CREATE_AGENTS="true"` and redeploy.
+- Confirm the redirect URI in Google Cloud exactly matches `/api/auth/callback/google` for your local or production URL.
 
 ### PDF button not downloading on production
 

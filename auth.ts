@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { compare } from "bcryptjs";
-import { hash } from "bcryptjs";
+import Google from "next-auth/providers/google";
+import { randomUUID } from "node:crypto";
+import { compare, hash } from "bcryptjs";
 import { z } from "zod";
 
 import authConfig from "@/auth.config";
@@ -19,6 +20,13 @@ type DefaultAccountConfig = {
   email?: string;
   name?: string;
   password?: string;
+};
+
+type AuthenticatedAppUser = {
+  id: string;
+  email: string;
+  name: string;
+  role: AppRole;
 };
 
 const defaultAccounts: DefaultAccountConfig[] = [
@@ -63,6 +71,74 @@ async function syncDefaultAccountFromEnv(email: string, password: string) {
 
   return user;
 }
+
+async function resolveGoogleAccount(emailValue: string | null | undefined, nameValue: string | null | undefined, profile: unknown): Promise<AuthenticatedAppUser | null> {
+  const email = emailValue?.toLowerCase().trim();
+
+  if (!email || !isGoogleEmailVerified(profile)) {
+    return null;
+  }
+
+  const existingUser = await db.user.findUnique({
+    where: {
+      email
+    }
+  });
+
+  if (existingUser) {
+    if (existingUser.role === APP_ROLES.AGENT && (await isAgentRevoked(existingUser.id))) {
+      return null;
+    }
+
+    return {
+      id: existingUser.id,
+      email: existingUser.email,
+      name: existingUser.name,
+      role: existingUser.role === APP_ROLES.ADMIN ? APP_ROLES.ADMIN : APP_ROLES.AGENT
+    };
+  }
+
+  const matchedDefaultAccount = defaultAccounts.find((account) => account.email?.toLowerCase() === email);
+  const shouldAutoCreateAgent = process.env.GOOGLE_AUTO_CREATE_AGENTS === "true";
+
+  if (!matchedDefaultAccount && !shouldAutoCreateAgent) {
+    return null;
+  }
+
+  const role = matchedDefaultAccount?.role ?? APP_ROLES.AGENT;
+  const passwordHash = await hash(matchedDefaultAccount?.password ?? randomUUID(), 10);
+  const user = await db.user.create({
+    data: {
+      email,
+      name: nameValue?.trim() || matchedDefaultAccount?.name || (role === APP_ROLES.ADMIN ? "Platform Admin" : "Admissions Agent"),
+      passwordHash,
+      role
+    }
+  });
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role === APP_ROLES.ADMIN ? APP_ROLES.ADMIN : APP_ROLES.AGENT
+  };
+}
+
+function isGoogleEmailVerified(profile: unknown) {
+  if (!profile || typeof profile !== "object" || !("email_verified" in profile)) {
+    return true;
+  }
+
+  return (profile as { email_verified?: unknown }).email_verified !== false;
+}
+
+const googleProvider =
+  process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ? Google({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET
+      })
+    : null;
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -123,6 +199,65 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           role
         };
       }
-    })
-  ]
+    }),
+    ...(googleProvider ? [googleProvider] : [])
+  ],
+  callbacks: {
+    ...authConfig.callbacks,
+    async signIn({ account, profile, user }) {
+      if (account?.provider !== "google") {
+        return true;
+      }
+
+      const appUser = await resolveGoogleAccount(user.email, user.name, profile);
+
+      if (!appUser) {
+        return false;
+      }
+
+      user.id = appUser.id;
+      user.email = appUser.email;
+      user.name = appUser.name;
+      user.role = appUser.role;
+
+      return true;
+    },
+    async jwt({ token, user, account, profile }) {
+      if (account?.provider === "google") {
+        const role = user?.role === APP_ROLES.ADMIN ? APP_ROLES.ADMIN : user?.role === APP_ROLES.AGENT ? APP_ROLES.AGENT : null;
+        const appUser = role
+          ? {
+              id: user.id,
+              email: user.email ?? "",
+              name: user.name ?? "",
+              role
+            }
+          : await resolveGoogleAccount(user?.email ?? token.email, user?.name ?? token.name, profile);
+
+        if (appUser) {
+          token.sub = appUser.id;
+          token.role = appUser.role;
+          token.email = appUser.email;
+          token.name = appUser.name;
+        }
+
+        return token;
+      }
+
+      if (user) {
+        token.role = user.role;
+        token.sub = user.id;
+      }
+
+      return token;
+    },
+    session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.sub ?? "";
+        session.user.role = (token.role as AppRole | undefined) ?? APP_ROLES.AGENT;
+      }
+
+      return session;
+    }
+  }
 });
