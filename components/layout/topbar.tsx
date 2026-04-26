@@ -1,6 +1,7 @@
 import { Menu } from "lucide-react";
 
 import { Sidebar } from "@/components/layout/sidebar";
+import { NotificationsMenu } from "@/components/layout/notifications-menu";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ export function Topbar({
         </div>
 
         <div className="flex items-center gap-2">
+          <NotificationsMenu />
           <ThemeToggle />
           <UserMenu email={user.email} name={user.name} role={user.role} />
         </div>

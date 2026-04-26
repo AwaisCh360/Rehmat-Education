@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { type LucideIcon, LayoutDashboard, Settings2 } from "lucide-react";
+import { Bell, type LucideIcon, LayoutDashboard, Settings2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,11 @@ const agentItems: NavItem[] = [
     href: "/programs",
     label: "Programs",
     icon: LayoutDashboard
+  },
+  {
+    href: "/notifications",
+    label: "Notifications",
+    icon: Bell
   }
 ];
 
