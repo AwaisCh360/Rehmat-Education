@@ -1,6 +1,8 @@
 import { AgentApprovalRequests } from "@/components/admin/agent-approval-requests";
 import { AgentAccessManager } from "@/components/admin/agent-access-manager";
+import { CreateAgentForm } from "@/components/admin/create-agent-form";
 import { FilterVisibilitySettingsForm } from "@/components/admin/filter-visibility-settings-form";
+import { getPortalSettings } from "@/lib/app/portal-settings";
 import { getRevokedAgentIds } from "@/lib/auth/agent-access";
 import { APP_ROLES } from "@/lib/auth/roles";
 import { requireAdmin } from "@/lib/auth/session";
@@ -12,10 +14,11 @@ import { getPdfVisibilitySettings } from "@/lib/programs/pdf-visibility";
 export default async function AdminSettingsPage() {
   await requireAdmin();
   try {
-    const [initialFilterSettings, initialPdfSettings, initialImportSettings, pendingRequests, agents, revokedAgentIds] = await Promise.all([
+    const [initialFilterSettings, initialPdfSettings, initialImportSettings, initialPortalSettings, pendingRequests, agents, revokedAgentIds] = await Promise.all([
       getFilterVisibilitySettings({ fresh: true }),
       getPdfVisibilitySettings(),
       getImportSettings(),
+      getPortalSettings(),
       db.agentSignupRequest.findMany({
         where: {
           status: "PENDING"
@@ -73,7 +76,10 @@ export default async function AdminSettingsPage() {
           initialFilterSettings={initialFilterSettings}
           initialPdfSettings={initialPdfSettings}
           initialImportSettings={initialImportSettings}
+          initialPortalSettings={initialPortalSettings}
         />
+
+        <CreateAgentForm />
 
         <AgentApprovalRequests
           initialRequests={pendingRequests.map((request) => ({

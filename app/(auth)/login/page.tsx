@@ -1,12 +1,14 @@
 import { LoginForm } from "@/components/auth/login-form";
+import { getPortalSettings } from "@/lib/app/portal-settings";
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams
 }: {
   searchParams?: Record<string, string | string[] | undefined>;
 }) {
   const error = Array.isArray(searchParams?.error) ? searchParams?.error[0] : searchParams?.error;
   const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+  const portalSettings = await getPortalSettings();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.16),_transparent_32%),radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.14),_transparent_36%),linear-gradient(180deg,#020817_0%,#061229_100%)] px-4 py-12">
@@ -18,7 +20,7 @@ export default function LoginPage({
           <h1 className="text-3xl font-semibold tracking-tight text-white">Welcome back</h1>
           <p className="text-sm text-slate-300">Sign in to continue to your admissions dashboard.</p>
         </div>
-        <LoginForm googleEnabled={googleEnabled} initialError={getLoginErrorMessage(error)} />
+        <LoginForm googleEnabled={googleEnabled} initialError={getLoginErrorMessage(error)} signupEnabled={portalSettings.signupEnabled} />
       </div>
     </div>
   );

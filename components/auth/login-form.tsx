@@ -14,9 +14,11 @@ import { Label } from "@/components/ui/label";
 
 export function LoginForm({
   googleEnabled,
+  signupEnabled,
   initialError = null
 }: {
   googleEnabled: boolean;
+  signupEnabled: boolean;
   initialError?: string | null;
 }) {
   const router = useRouter();
@@ -113,12 +115,14 @@ export function LoginForm({
             {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             Continue
           </Button>
-          <p className="text-center text-sm text-muted-foreground">
-            Need an agent account?{" "}
-            <Link className="font-medium text-sky-300 hover:text-sky-200 hover:underline" href="/signup">
-              Submit a request
-            </Link>
-          </p>
+          {signupEnabled ? (
+            <p className="text-center text-sm text-muted-foreground">
+              Need an agent account?{" "}
+              <Link className="font-medium text-sky-300 hover:text-sky-200 hover:underline" href="/signup">
+                Submit a request
+              </Link>
+            </p>
+          ) : null}
         </form>
       </CardContent>
     </Card>

@@ -2,6 +2,7 @@ import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { getPortalSettings } from "@/lib/app/portal-settings";
 import { db } from "@/lib/db";
 
 const signupSchema = z.object({
@@ -32,6 +33,12 @@ const signupSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const portalSettings = await getPortalSettings();
+
+  if (!portalSettings.signupEnabled) {
+    return NextResponse.json({ error: "Agent signup is currently disabled by admin." }, { status: 403 });
+  }
+
   const payload = await request.json();
   const parsed = signupSchema.safeParse(payload);
 

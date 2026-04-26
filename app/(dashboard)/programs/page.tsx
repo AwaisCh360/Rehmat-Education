@@ -5,6 +5,7 @@ import { Pagination } from "@/components/programs/pagination";
 import { ProgramGrid } from "@/components/programs/program-grid";
 import { ProgramsToolbar } from "@/components/programs/programs-toolbar";
 import { Card, CardContent } from "@/components/ui/card";
+import { getPortalSettings } from "@/lib/app/portal-settings";
 import { requireUser } from "@/lib/auth/session";
 import { getFilterVisibilitySettings } from "@/lib/programs/filter-visibility";
 import { getFiltersFromSearchParams, toSingleSearchParamRecord } from "@/lib/programs/filters";
@@ -20,14 +21,15 @@ export default async function ProgramsPage({
 
   const filters = getFiltersFromSearchParams(searchParams);
   const cleanParams = toSingleSearchParamRecord(searchParams);
-  const [catalog, options, filterVisibility] = await Promise.all([
+  const [catalog, options, filterVisibility, portalSettings] = await Promise.all([
     getPrograms({
       ...filters,
       page: cleanParams.page,
       pageSize: cleanParams.pageSize
     }),
     getProgramFilters(),
-    getFilterVisibilitySettings()
+    getFilterVisibilitySettings(),
+    getPortalSettings()
   ]);
 
   return (
@@ -70,7 +72,7 @@ export default async function ProgramsPage({
       </section>
 
       <ProgramsToolbar basePath="/programs" currentPage={catalog.page} filterVisibility={filterVisibility} initialFilters={filters} mode="browse" options={options} resultCount={catalog.total} />
-      <ProgramGrid programs={catalog.items} />
+      <ProgramGrid defaultViewMode={portalSettings.defaultProgramLayout} programs={catalog.items} />
       <Pagination basePath="/programs" currentPage={catalog.page} searchParams={cleanParams} totalPages={catalog.totalPages} />
     </div>
   );

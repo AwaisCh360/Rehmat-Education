@@ -1,6 +1,14 @@
 import { SignupForm } from "@/components/auth/signup-form";
+import { getPortalSettings } from "@/lib/app/portal-settings";
+import { redirect } from "next/navigation";
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  const portalSettings = await getPortalSettings();
+
+  if (!portalSettings.signupEnabled) {
+    redirect("/login?signup=disabled");
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.16),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.14),_transparent_38%),linear-gradient(180deg,#020817_0%,#061229_100%)] px-4 py-12">
       <div className="w-full max-w-2xl space-y-6">

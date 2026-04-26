@@ -11,9 +11,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import type { ProgramListItem } from "@/lib/programs/query";
 import { formatCurrency, formatNullable } from "@/lib/utils";
 
-export function ProgramGrid({ programs }: { programs: ProgramListItem[] }) {
+export function ProgramGrid({
+  programs,
+  defaultViewMode = "table"
+}: {
+  programs: ProgramListItem[];
+  defaultViewMode?: "table" | "card";
+}) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+  const [viewMode, setViewMode] = useState<"table" | "card">(defaultViewMode);
   const selectedIdSet = new Set(selectedIds);
 
   useEffect(() => {
