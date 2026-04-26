@@ -154,7 +154,7 @@ export function SignupForm() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="cnic">CNIC / National ID</Label>
+                <Label htmlFor="cnic">CNIC / National ID (optional)</Label>
                 <div className="relative">
                   <CreditCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
@@ -203,7 +203,7 @@ export function SignupForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="postalCode">Postal code</Label>
+                <Label htmlFor="postalCode">Postal code (optional)</Label>
                 <Input id="postalCode" onChange={(event) => setPostalCode(event.target.value)} placeholder="54000" value={postalCode} />
               </div>
               <div className="space-y-2 sm:col-span-2">

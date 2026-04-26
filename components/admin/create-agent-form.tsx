@@ -151,7 +151,7 @@ export function CreateAgentForm() {
 
             <div className="space-y-2">
               <Label htmlFor="create-agent-postal">Postal code</Label>
-              <Input id="create-agent-postal" onChange={(event) => setPostalCode(event.target.value)} placeholder="54000" required value={postalCode} />
+              <Input id="create-agent-postal" onChange={(event) => setPostalCode(event.target.value)} placeholder="54000" value={postalCode} />
             </div>
 
             <div className="space-y-2">
@@ -176,7 +176,7 @@ export function CreateAgentForm() {
 
             <div className="space-y-2">
               <Label htmlFor="create-agent-cnic">CNIC</Label>
-              <Input id="create-agent-cnic" onChange={(event) => setCnic(event.target.value)} placeholder="35201-1234567-1" required value={cnic} />
+              <Input id="create-agent-cnic" onChange={(event) => setCnic(event.target.value)} placeholder="35201-1234567-1" value={cnic} />
             </div>
 
             <div className="space-y-2 md:col-span-2">

@@ -14,7 +14,7 @@ const createAgentSchema = z.object({
   designation: z.string().trim().min(2).max(120),
   yearsOfExperience: z.coerce.number().int().min(0).max(45),
   website: z.string().trim().url().optional().or(z.literal("")),
-  postalCode: z.string().trim().min(3).max(20),
+  postalCode: z.string().trim().min(3).max(20).optional().or(z.literal("")),
   country: z.string().trim().min(2).max(80),
   province: z.string().trim().min(2).max(80),
   city: z.string().trim().min(2).max(80),
@@ -24,7 +24,9 @@ const createAgentSchema = z.object({
     .trim()
     .min(5)
     .max(32)
-    .regex(/^[A-Za-z0-9-]+$/, "Invalid CNIC format"),
+    .regex(/^[A-Za-z0-9-]+$/, "Invalid CNIC format")
+    .optional()
+    .or(z.literal("")),
   phoneNumber: z
     .string()
     .trim()
@@ -70,6 +72,7 @@ export async function POST(request: Request) {
         name: parsed.data.name,
         email,
         passwordHash,
+        mustChangePassword: true,
         role: APP_ROLES.AGENT
       },
       select: {
@@ -93,12 +96,12 @@ export async function POST(request: Request) {
         designation: parsed.data.designation,
         yearsOfExperience: parsed.data.yearsOfExperience,
         website: parsed.data.website || null,
-        postalCode: parsed.data.postalCode,
+        postalCode: parsed.data.postalCode || null,
         country: parsed.data.country,
         province: parsed.data.province,
         city: parsed.data.city,
         address: parsed.data.address,
-        cnic: parsed.data.cnic,
+        cnic: parsed.data.cnic || null,
         phoneNumber: parsed.data.phoneNumber,
         status: "APPROVED",
         reviewedAt: new Date(),
@@ -111,12 +114,12 @@ export async function POST(request: Request) {
         designation: parsed.data.designation,
         yearsOfExperience: parsed.data.yearsOfExperience,
         website: parsed.data.website || null,
-        postalCode: parsed.data.postalCode,
+        postalCode: parsed.data.postalCode || null,
         country: parsed.data.country,
         province: parsed.data.province,
         city: parsed.data.city,
         address: parsed.data.address,
-        cnic: parsed.data.cnic,
+        cnic: parsed.data.cnic || null,
         phoneNumber: parsed.data.phoneNumber,
         status: "APPROVED",
         reviewedAt: new Date(),

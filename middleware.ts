@@ -11,6 +11,7 @@ export default auth((request) => {
   const isPublicPath = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
   const isAuthenticated = Boolean(request.auth?.user);
   const role = request.auth?.user?.role;
+  const mustChangePassword = Boolean(request.auth?.user?.mustChangePassword);
 
   if (pathname.startsWith("/api/auth")) {
     return NextResponse.next();
@@ -22,6 +23,10 @@ export default auth((request) => {
 
   if (isAuthenticated && (pathname === "/login" || pathname === "/signup")) {
     return NextResponse.redirect(new URL(role === "ADMIN" ? "/admin/programs" : "/programs", request.nextUrl));
+  }
+
+  if (isAuthenticated && role === "AGENT" && mustChangePassword && pathname !== "/change-password" && !pathname.startsWith("/api/auth/change-password")) {
+    return NextResponse.redirect(new URL("/change-password", request.nextUrl));
   }
 
   if ((pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) && role !== "ADMIN") {

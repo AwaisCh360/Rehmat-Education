@@ -23,6 +23,7 @@ const authConfig = {
       if (user) {
         token.role = user.role;
         token.sub = user.id;
+        token.mustChangePassword = user.mustChangePassword ?? false;
       }
 
       return token;
@@ -31,6 +32,7 @@ const authConfig = {
       if (session.user) {
         session.user.id = token.sub ?? "";
         session.user.role = (token.role as AppRole | undefined) ?? APP_ROLES.AGENT;
+        session.user.mustChangePassword = Boolean(token.mustChangePassword);
       }
 
       return session;

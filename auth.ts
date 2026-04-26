@@ -27,6 +27,7 @@ type AuthenticatedAppUser = {
   email: string;
   name: string;
   role: AppRole;
+  mustChangePassword: boolean;
 };
 
 const defaultAccounts: DefaultAccountConfig[] = [
@@ -94,7 +95,8 @@ async function resolveGoogleAccount(emailValue: string | null | undefined, nameV
       id: existingUser.id,
       email: existingUser.email,
       name: existingUser.name,
-      role: existingUser.role === APP_ROLES.ADMIN ? APP_ROLES.ADMIN : APP_ROLES.AGENT
+      role: existingUser.role === APP_ROLES.ADMIN ? APP_ROLES.ADMIN : APP_ROLES.AGENT,
+      mustChangePassword: existingUser.mustChangePassword
     };
   }
 
@@ -120,7 +122,8 @@ async function resolveGoogleAccount(emailValue: string | null | undefined, nameV
     id: user.id,
     email: user.email,
     name: user.name,
-    role: user.role === APP_ROLES.ADMIN ? APP_ROLES.ADMIN : APP_ROLES.AGENT
+    role: user.role === APP_ROLES.ADMIN ? APP_ROLES.ADMIN : APP_ROLES.AGENT,
+    mustChangePassword: user.mustChangePassword
   };
 }
 
@@ -196,7 +199,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           id: authUser.id,
           email: authUser.email,
           name: authUser.name,
-          role
+          role,
+          mustChangePassword: authUser.mustChangePassword
         };
       }
     }),
@@ -219,6 +223,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       user.email = appUser.email;
       user.name = appUser.name;
       user.role = appUser.role;
+      user.mustChangePassword = appUser.mustChangePassword;
 
       return true;
     },
@@ -230,7 +235,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               id: user.id,
               email: user.email ?? "",
               name: user.name ?? "",
-              role
+              role,
+              mustChangePassword: user.mustChangePassword ?? false
             }
           : await resolveGoogleAccount(user?.email ?? token.email, user?.name ?? token.name, profile);
 
@@ -239,6 +245,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.role = appUser.role;
           token.email = appUser.email;
           token.name = appUser.name;
+          token.mustChangePassword = appUser.mustChangePassword;
         }
 
         return token;
@@ -247,6 +254,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.role = user.role;
         token.sub = user.id;
+        token.mustChangePassword = user.mustChangePassword ?? false;
       }
 
       return token;
@@ -255,6 +263,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.id = token.sub ?? "";
         session.user.role = (token.role as AppRole | undefined) ?? APP_ROLES.AGENT;
+        session.user.mustChangePassword = Boolean(token.mustChangePassword);
       }
 
       return session;
