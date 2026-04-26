@@ -198,7 +198,7 @@ export function ProgramsToolbar({ basePath, currentPage, filterVisibility, initi
           ) : null}
 
           {visibleFilters.discountedFeeRange ? (
-          <FilterField label="Discounted fee range">
+          <FilterField label="Fee Range">
             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
               <Input
                 inputMode="decimal"

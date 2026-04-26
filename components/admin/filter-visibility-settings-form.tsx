@@ -31,7 +31,7 @@ const filterLabelMap: Record<keyof FilterVisibilitySettings, string> = {
   language: "Language filter",
   campus: "Campus filter",
   quota: "Quota filter",
-  discountedFeeRange: "Discounted fee range",
+  discountedFeeRange: "Fee Range",
   sort: "Sort filter"
 };
 
