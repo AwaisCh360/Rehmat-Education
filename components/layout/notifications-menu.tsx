@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Bell } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -18,11 +18,15 @@ type NotificationItem = {
   createdAt: string;
 };
 
+const SEEN_NOTIFICATIONS_STORAGE_KEY = "rehmat:seen-notifications";
+
 export function NotificationsMenu() {
   const router = useRouter();
+  const pathname = usePathname();
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -42,8 +46,9 @@ export function NotificationsMenu() {
           return;
         }
 
-        setItems(payload.items ?? []);
-        setUnreadCount(payload.unreadCount ?? 0);
+        const nextItems = (payload.items ?? []) as NotificationItem[];
+        setItems(nextItems);
+        setUnreadCount(getUnreadCount(nextItems));
       } finally {
         if (active) {
           setIsLoading(false);
@@ -60,10 +65,27 @@ export function NotificationsMenu() {
     };
   }, []);
 
+  useEffect(() => {
+    if (pathname === "/notifications" && items.length > 0) {
+      markNotificationsAsSeen(items);
+      setUnreadCount(0);
+    }
+  }, [items, pathname]);
+
   const hasItems = useMemo(() => items.length > 0, [items]);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu
+      onOpenChange={(nextOpen) => {
+        setIsOpen(nextOpen);
+
+        if (nextOpen && items.length > 0) {
+          markNotificationsAsSeen(items);
+          setUnreadCount(0);
+        }
+      }}
+      open={isOpen}
+    >
       <DropdownMenuTrigger asChild>
         <Button aria-label="Open notifications" className="relative" size="icon" variant="outline">
           <Bell className="h-4 w-4" />
@@ -127,4 +149,62 @@ function dotClassName(level: NotificationLevel) {
   }
 
   return "mt-1.5 h-2.5 w-2.5 rounded-full bg-sky-500";
+}
+
+function getSignature(item: NotificationItem) {
+  return `${item.id}|${item.message}`;
+}
+
+function readSeenSignatures() {
+  if (typeof window === "undefined") {
+    return new Set<string>();
+  }
+
+  try {
+    const raw = window.localStorage.getItem(SEEN_NOTIFICATIONS_STORAGE_KEY);
+
+    if (!raw) {
+      return new Set<string>();
+    }
+
+    const parsed = JSON.parse(raw) as string[];
+    return new Set(Array.isArray(parsed) ? parsed : []);
+  } catch {
+    return new Set<string>();
+  }
+}
+
+function writeSeenSignatures(signatures: Set<string>) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(SEEN_NOTIFICATIONS_STORAGE_KEY, JSON.stringify([...signatures]));
+  } catch {
+    // Ignore storage write failures.
+  }
+}
+
+function getUnreadCount(items: NotificationItem[]) {
+  const seen = readSeenSignatures();
+  let unread = 0;
+
+  for (const item of items) {
+    if (!seen.has(getSignature(item))) {
+      unread += 1;
+    }
+  }
+
+  return Math.min(unread, 9);
+}
+
+function markNotificationsAsSeen(items: NotificationItem[]) {
+  const seen = readSeenSignatures();
+
+  for (const item of items) {
+    seen.add(getSignature(item));
+  }
+
+  writeSeenSignatures(seen);
 }
