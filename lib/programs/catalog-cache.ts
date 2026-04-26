@@ -120,7 +120,7 @@ async function loadProgramCatalogSnapshot() {
 }
 
 async function loadLocalProgramRows() {
-  if (process.env.PROGRAM_CATALOG_SOURCE === "database") {
+  if (process.env.PROGRAM_CATALOG_SOURCE !== "file") {
     return null;
   }
 
@@ -134,7 +134,7 @@ async function loadLocalProgramRows() {
 }
 
 async function loadPatchBaseRows() {
-  if (process.env.PROGRAM_CATALOG_SOURCE === "database") {
+  if (process.env.PROGRAM_CATALOG_SOURCE !== "file") {
     return null;
   }
 
