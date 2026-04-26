@@ -87,6 +87,7 @@ export function FilterVisibilitySettingsForm({
   const [pdfSettings, setPdfSettings] = useState(initialPdfSettings);
   const [importSettings, setImportSettings] = useState(initialImportSettings);
   const [portalSettings, setPortalSettings] = useState(initialPortalSettings);
+  const [logoError, setLogoError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isSyncPending, startSyncTransition] = useTransition();
   const [showFilterFields, setShowFilterFields] = useState(false);
@@ -103,6 +104,95 @@ export function FilterVisibilitySettingsForm({
         <div className="space-y-3">
           <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">Portal defaults</h3>
           <div className="grid gap-3 rounded-2xl border border-border/70 bg-muted/20 p-4 md:grid-cols-2">
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="portal-app-name">Portal name</Label>
+              <Input
+                id="portal-app-name"
+                maxLength={80}
+                onChange={(event) =>
+                  setPortalSettings((current) => ({
+                    ...current,
+                    appName: event.target.value
+                  }))
+                }
+                placeholder="Student On Board"
+                value={portalSettings.appName}
+              />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="portal-slogan">Slogan</Label>
+              <Input
+                id="portal-slogan"
+                maxLength={140}
+                onChange={(event) =>
+                  setPortalSettings((current) => ({
+                    ...current,
+                    slogan: event.target.value
+                  }))
+                }
+                placeholder="Plan Today, Study Tomorrow, Succeed Forever"
+                value={portalSettings.slogan}
+              />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="portal-logo">Logo (max 2MB)</Label>
+              <Input
+                accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
+                id="portal-logo"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+
+                  if (!file) {
+                    return;
+                  }
+
+                  if (file.size > 2 * 1024 * 1024) {
+                    setLogoError("Logo size must be 2MB or less.");
+                    return;
+                  }
+
+                  setLogoError(null);
+
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    const result = typeof reader.result === "string" ? reader.result : "";
+
+                    if (!result.startsWith("data:image/")) {
+                      setLogoError("Please upload a valid image file.");
+                      return;
+                    }
+
+                    setPortalSettings((current) => ({
+                      ...current,
+                      logoDataUrl: result
+                    }));
+                  };
+                  reader.readAsDataURL(file);
+                }}
+                type="file"
+              />
+              {logoError ? <p className="text-xs text-destructive">{logoError}</p> : null}
+              {portalSettings.logoDataUrl ? (
+                <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-background/80 p-3">
+                  <img alt="Portal logo preview" className="h-10 w-10 rounded-lg border border-border/70 object-contain bg-white" src={portalSettings.logoDataUrl} />
+                  <Button
+                    onClick={() =>
+                      setPortalSettings((current) => ({
+                        ...current,
+                        logoDataUrl: null
+                      }))
+                    }
+                    type="button"
+                    variant="outline"
+                  >
+                    Remove logo
+                  </Button>
+                </div>
+              ) : null}
+            </div>
+
             <label className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 px-4 py-3 md:col-span-2">
               <span className="text-sm font-medium">Allow public agent signup page</span>
               <input

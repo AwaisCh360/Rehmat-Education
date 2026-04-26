@@ -15,10 +15,10 @@ export default async function LoginPage({
       <div className="w-full max-w-md space-y-6">
         <div className="space-y-2 text-center">
           <div className="inline-flex rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-sky-200">
-            Rehmat Education
+            {portalSettings.appName}
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-white">Welcome back</h1>
-          <p className="text-sm text-slate-300">Sign in to continue to your admissions dashboard.</p>
+          <p className="text-sm text-slate-300">{portalSettings.slogan}</p>
         </div>
         <LoginForm googleEnabled={googleEnabled} initialError={getLoginErrorMessage(error)} signupEnabled={portalSettings.signupEnabled} />
       </div>

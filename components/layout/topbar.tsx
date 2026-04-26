@@ -8,9 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export function Topbar({
+  branding,
   pathname,
   user
 }: {
+  branding: {
+    appName: string;
+    slogan: string;
+    logoDataUrl: string | null;
+  };
   pathname: string;
   user: {
     name: string;
@@ -33,12 +39,15 @@ export function Topbar({
                 <SheetTitle>Navigation</SheetTitle>
                 <SheetDescription>Browse dashboard sections</SheetDescription>
               </SheetHeader>
-              <Sidebar pathname={pathname} role={user.role} />
+              <Sidebar branding={branding} pathname={pathname} role={user.role} />
             </SheetContent>
           </Sheet>
-          <div>
-            <div className="text-sm font-semibold">University Programs Dashboard</div>
-            <div className="text-xs text-muted-foreground">Search, compare, and manage admissions data</div>
+          <div className="flex items-center gap-3">
+            {branding.logoDataUrl ? <img alt="Portal logo" className="h-9 w-9 rounded-lg border border-border/70 object-contain bg-white" src={branding.logoDataUrl} /> : null}
+            <div>
+              <div className="text-sm font-semibold">{branding.appName}</div>
+              <div className="text-xs text-muted-foreground">{branding.slogan}</div>
+            </div>
           </div>
         </div>
 

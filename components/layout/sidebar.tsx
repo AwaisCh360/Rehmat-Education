@@ -33,9 +33,15 @@ const adminItems: NavItem[] = [
 ];
 
 export function Sidebar({
+  branding,
   pathname,
   role
 }: {
+  branding: {
+    appName: string;
+    slogan: string;
+    logoDataUrl: string | null;
+  };
   pathname: string;
   role: "ADMIN" | "AGENT";
 }) {
@@ -45,12 +51,16 @@ export function Sidebar({
     <aside className="flex h-full w-full flex-col gap-6 border-r border-border/80 bg-card px-4 py-5">
       <div className="space-y-2 px-2">
         <Link className="inline-flex items-center gap-3" href={role === "ADMIN" ? "/admin/settings" : "/programs"}>
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/12 text-primary">
-            <Settings2 className="h-5 w-5" />
-          </div>
+          {branding.logoDataUrl ? (
+            <img alt="Portal logo" className="h-10 w-10 rounded-lg border border-border/70 object-contain bg-white" src={branding.logoDataUrl} />
+          ) : (
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/12 text-primary">
+              <Settings2 className="h-5 w-5" />
+            </div>
+          )}
           <div>
-            <div className="text-sm font-semibold">Rehmat Education</div>
-            <div className="text-xs text-muted-foreground">Programs dashboard</div>
+            <div className="text-sm font-semibold">{branding.appName}</div>
+            <div className="text-xs text-muted-foreground">{branding.slogan}</div>
           </div>
         </Link>
         <Badge className="w-fit" variant={role === "ADMIN" ? "warning" : "success"}>

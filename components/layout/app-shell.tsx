@@ -7,9 +7,15 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 
 export function AppShell({
+  branding,
   user,
   children
 }: {
+  branding: {
+    appName: string;
+    slogan: string;
+    logoDataUrl: string | null;
+  };
   user: {
     name: string;
     email: string;
@@ -23,10 +29,10 @@ export function AppShell({
     <div className="min-h-screen bg-background">
       <div className="grid min-h-screen lg:grid-cols-[260px_1fr]">
         <div className="hidden lg:block">
-          <Sidebar pathname={pathname} role={user.role} />
+          <Sidebar branding={branding} pathname={pathname} role={user.role} />
         </div>
         <div className="flex min-h-screen flex-col">
-          <Topbar pathname={pathname} user={user} />
+          <Topbar branding={branding} pathname={pathname} user={user} />
           <main className="flex-1 px-4 py-6 lg:px-6">{children}</main>
         </div>
       </div>

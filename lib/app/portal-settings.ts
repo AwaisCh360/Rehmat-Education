@@ -1,6 +1,9 @@
 import { db } from "@/lib/db";
 
 export type PortalSettings = {
+  appName: string;
+  slogan: string;
+  logoDataUrl: string | null;
   signupEnabled: boolean;
   defaultProgramLayout: "table" | "card";
 };
@@ -8,6 +11,9 @@ export type PortalSettings = {
 const SETTINGS_KEY = "portal-settings";
 
 export const defaultPortalSettings: PortalSettings = {
+  appName: "Student On Board",
+  slogan: "Plan Today, Study Tomorrow, Succeed Forever",
+  logoDataUrl: null,
   signupEnabled: true,
   defaultProgramLayout: "table"
 };
@@ -70,6 +76,9 @@ function normalizePortalSettings(valueJson: string): PortalSettings {
     const parsed = JSON.parse(valueJson) as Partial<PortalSettings>;
 
     return {
+      appName: typeof parsed.appName === "string" && parsed.appName.trim().length > 0 ? parsed.appName.trim() : defaultPortalSettings.appName,
+      slogan: typeof parsed.slogan === "string" && parsed.slogan.trim().length > 0 ? parsed.slogan.trim() : defaultPortalSettings.slogan,
+      logoDataUrl: typeof parsed.logoDataUrl === "string" && parsed.logoDataUrl.trim().length > 0 ? parsed.logoDataUrl : null,
       signupEnabled: parsed.signupEnabled ?? defaultPortalSettings.signupEnabled,
       defaultProgramLayout: parsed.defaultProgramLayout === "card" ? "card" : "table"
     };

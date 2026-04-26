@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { AppShell } from "@/components/layout/app-shell";
+import { getPortalSettings } from "@/lib/app/portal-settings";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -11,8 +12,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/login");
   }
 
+  const portalSettings = await getPortalSettings();
+
   return (
     <AppShell
+      branding={{
+        appName: portalSettings.appName,
+        slogan: portalSettings.slogan,
+        logoDataUrl: portalSettings.logoDataUrl
+      }}
       user={{
         name: session.user.name ?? "User",
         email: session.user.email ?? "",

@@ -1,5 +1,5 @@
 import type React from "react";
-import { ArrowUpRight, GraduationCap, Languages, School2 } from "lucide-react";
+import { GraduationCap, Languages, School2 } from "lucide-react";
 
 import { Pagination } from "@/components/programs/pagination";
 import { ProgramGrid } from "@/components/programs/program-grid";
@@ -34,38 +34,29 @@ export default async function ProgramsPage({
 
   return (
     <div className="space-y-6">
-      <section className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
-        <Card className="rounded-2xl border-border/70">
-          <CardContent className="flex h-full flex-col justify-between gap-6 p-6">
-            <div className="space-y-3">
-              <div className="inline-flex w-fit rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground">Agent workspace</div>
-              <div className="space-y-2">
-                <h1 className="text-3xl font-semibold tracking-tight">Browse the live university catalog.</h1>
-                <p className="max-w-2xl text-sm text-muted-foreground">
-                  Search across English and Arabic names, combine filters instantly, and open a clean detail view before exporting a PDF for the student file.
-                </p>
+      <section>
+        <Card className="rounded-2xl border-border/70 bg-[linear-gradient(135deg,rgba(14,165,233,0.08),rgba(16,185,129,0.08))]">
+          <CardContent className="space-y-6 p-6">
+            <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div className="space-y-3">
+                <div className="inline-flex w-fit rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground">Agent workspace</div>
+                <h1 className="text-3xl font-semibold tracking-tight">{portalSettings.appName}</h1>
+                <p className="max-w-3xl text-base text-muted-foreground">{portalSettings.slogan}</p>
+              </div>
+
+              <div className="flex h-24 w-24 items-center justify-center rounded-2xl border border-border/70 bg-background/80 lg:h-28 lg:w-28">
+                {portalSettings.logoDataUrl ? (
+                  <img alt="Portal logo" className="h-16 w-16 object-contain lg:h-20 lg:w-20" src={portalSettings.logoDataUrl} />
+                ) : (
+                  <div className="text-center text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">Logo</div>
+                )}
               </div>
             </div>
+
             <div className="grid gap-4 sm:grid-cols-3">
               <StatCard icon={School2} label="Programs in catalog" value={formatCount(catalog.totalCatalog)} />
               <StatCard icon={GraduationCap} label="Degrees available" value={formatCount(options.degrees.length)} />
               <StatCard icon={Languages} label="Languages covered" value={formatCount(options.languages.length)} />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-2xl border-border/70 bg-[linear-gradient(135deg,rgba(14,165,233,0.12),rgba(16,185,129,0.1))]">
-          <CardContent className="flex h-full flex-col justify-between gap-4 p-6">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 text-sm font-medium">
-                <ArrowUpRight className="h-4 w-4 text-primary" />
-                Fast admissions triage
-              </div>
-              <h2 className="text-2xl font-semibold tracking-tight">Move from search to decision without leaving the dashboard.</h2>
-            </div>
-            <div className="space-y-3 text-sm text-muted-foreground">
-              <p>Use price sorting for quick shortlist passes, then export a PDF summary when a student is ready to review options.</p>
-              <p>Filters stay on this device, so frequent agent workflows are one refresh away.</p>
             </div>
           </CardContent>
         </Card>
