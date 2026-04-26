@@ -3,7 +3,7 @@ import { jsPDF } from "jspdf";
 
 import { requireApiUser } from "@/lib/auth/session";
 import { defaultPdfVisibilitySettings, getPdfVisibilitySettings } from "@/lib/programs/pdf-visibility";
-import { renderProgramPdfPage } from "../../../../../lib/programs/pdf";
+import { renderProgramsPdf } from "../../../../../lib/programs/pdf";
 import { getProgramById } from "@/lib/programs/query";
 
 export const runtime = "nodejs";
@@ -27,9 +27,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     unit: "pt"
   });
 
-  renderProgramPdfPage(doc, program, {
-    pageIndex: 0,
-    totalPages: 1,
+  renderProgramsPdf(doc, [program], {
     visibility: pdfVisibility
   });
 

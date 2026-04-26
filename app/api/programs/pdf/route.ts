@@ -3,7 +3,7 @@ import { jsPDF } from "jspdf";
 
 import { requireApiUser } from "@/lib/auth/session";
 import { defaultPdfVisibilitySettings, getPdfVisibilitySettings } from "@/lib/programs/pdf-visibility";
-import { renderProgramPdfPage } from "@/lib/programs/pdf";
+import { renderProgramsPdf } from "@/lib/programs/pdf";
 import { getProgramsByIds } from "@/lib/programs/query";
 
 export const runtime = "nodejs";
@@ -35,16 +35,8 @@ export async function GET(request: Request) {
     unit: "pt"
   });
 
-  programs.forEach((program, index) => {
-    if (index > 0) {
-      doc.addPage();
-    }
-
-    renderProgramPdfPage(doc, program, {
-      pageIndex: index,
-      totalPages: programs.length,
-      visibility: pdfVisibility
-    });
+  renderProgramsPdf(doc, programs, {
+    visibility: pdfVisibility
   });
 
   const buffer = Buffer.from(doc.output("arraybuffer"));

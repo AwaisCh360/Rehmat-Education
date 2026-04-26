@@ -26,15 +26,13 @@ type PrintableProgram = Pick<
 >;
 
 type PdfRenderOptions = {
-  pageIndex: number;
-  totalPages: number;
   visibility?: PdfVisibilitySettings;
 };
 
 let arabicFontRegistered = false;
 let arabicFontAvailable = true;
 
-export function renderProgramPdfPage(doc: jsPDF, program: PrintableProgram, options: PdfRenderOptions) {
+export function renderProgramsPdf(doc: jsPDF, programs: PrintableProgram[], options: PdfRenderOptions = {}) {
   ensureArabicFont(doc);
 
   const visibility = {
@@ -42,195 +40,189 @@ export function renderProgramPdfPage(doc: jsPDF, program: PrintableProgram, opti
     ...(options.visibility ?? {})
   };
 
-  const title = cleanText(program.programName);
-  const university = cleanText(program.universityName);
-  const currency = cleanText(program.currencyType, "USD");
+  const sortedPrograms = [...programs].sort((a, b) => {
+    const uni = cleanText(a.universityName).localeCompare(cleanText(b.universityName));
 
-  const overviewRows = [
-    ["University", university],
-    ["Program", title],
-    ["Degree", cleanText(program.programDegree)],
-    ["Language", cleanText(program.language)],
-    ["Campus", cleanText(program.campus)],
-    ["Academic Year", cleanText(program.academicYear)],
-    ["Semester", cleanText(program.semester)],
-    ["Quota Status", program.quotaFull ? "Quota full" : "Available"]
-  ] as Array<[string, string]>;
-
-  const visibleOverviewRows = overviewRows.filter(([label]) => {
-    if (label === "University") return visibility.showUniversity;
-    if (label === "Program") return visibility.showProgram;
-    if (label === "Degree") return visibility.showDegree;
-    if (label === "Language") return visibility.showLanguage;
-    if (label === "Campus") return visibility.showCampus;
-    if (label === "Academic Year") return visibility.showAcademicYear;
-    if (label === "Semester") return visibility.showSemester;
-    if (label === "Quota Status") return visibility.showQuotaStatus;
-    return true;
-  });
-
-  const feeRows = [
-    ["Currency", currency],
-    ["Tuition Fee", printableCurrency(program.tuitionFee, currency)],
-    ["Discounted Fee", printableCurrency(program.discountedTuitionFee, currency)],
-    ["Prep School Fee", printableCurrency(program.prepSchoolFee, currency)],
-    ["Cash Payment Fee", printableCurrency(program.cashPaymentFee, currency)],
-    ["Deposit Price", printableCurrency(program.depositPrice, currency)]
-  ] as Array<[string, string]>;
-
-  const visibleFeeRows = feeRows.filter(([label]) => {
-    if (label === "Currency") return visibility.showCurrency;
-    if (label === "Tuition Fee") return visibility.showTuitionFee;
-    if (label === "Discounted Fee") return visibility.showDiscountedFee;
-    if (label === "Prep School Fee") return visibility.showPrepSchoolFee;
-    if (label === "Cash Payment Fee") return visibility.showCashPaymentFee;
-    if (label === "Deposit Price") return visibility.showDepositPrice;
-    return true;
-  });
-
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const contentX = 32;
-  const contentWidth = pageWidth - contentX * 2;
-  const gutter = 12;
-  const cellWidth = (contentWidth - gutter) / 2;
-
-  const titleLines = splitForCell(doc, title, contentWidth - 36);
-  const headerHeight = Math.max(98, 40 + titleLines.length * 18 + 34);
-
-  doc.setFillColor(250, 248, 244);
-  doc.setDrawColor(223, 214, 199);
-  doc.roundedRect(contentX, 28, contentWidth, headerHeight, 14, 14, "FD");
-
-  const pageBadge = `Page ${options.pageIndex + 1} of ${options.totalPages}`;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  const badgeWidth = doc.getTextWidth(pageBadge) + 18;
-  const badgeHeight = 18;
-  const badgeX = contentX + contentWidth - badgeWidth - 12;
-  const badgeY = 40;
-  doc.setFillColor(236, 229, 216);
-  doc.setDrawColor(223, 214, 199);
-  doc.roundedRect(badgeX, badgeY - 12, badgeWidth, badgeHeight, 8, 8, "FD");
-  doc.setTextColor(79, 67, 44);
-  doc.text(pageBadge, badgeX + badgeWidth / 2, badgeY, { align: "center" });
-
-  drawText(doc, titleLines, contentX + 14, 58, {
-    color: [20, 42, 31],
-    fontSize: 20,
-    bold: true,
-    maxWidth: contentWidth - 28
-  });
-
-  drawText(doc, university, contentX + 14, 68 + titleLines.length * 18, {
-    color: [68, 55, 35],
-    fontSize: 18,
-    bold: true,
-    maxWidth: contentWidth - 28
-  });
-
-  doc.setDrawColor(233, 225, 211);
-  doc.line(contentX + 14, 80 + titleLines.length * 18, contentX + contentWidth - 14, 80 + titleLines.length * 18);
-
-  let y = 28 + headerHeight + 16;
-
-  if (visibleOverviewRows.length > 0) {
-    y = drawSectionTitle(doc, "Program Overview", contentX, y);
-    y = drawGridRows(doc, visibleOverviewRows, contentX, cellWidth, gutter, y);
-    y += 8;
-  }
-
-  if (visibleFeeRows.length > 0) {
-    y = drawSectionTitle(doc, "Financial Details", contentX, y);
-    y = drawGridRows(doc, visibleFeeRows, contentX, cellWidth, gutter, y);
-  }
-
-  doc.setDrawColor(223, 214, 199);
-  doc.line(contentX, pageHeight - 28, contentX + contentWidth, pageHeight - 28);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(120, 102, 80);
-  doc.text("Generated by Student On Board", contentX, pageHeight - 14);
-}
-
-function drawSectionTitle(doc: jsPDF, title: string, x: number, y: number) {
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(15);
-  doc.setTextColor(52, 46, 37);
-  doc.text(title, x, y);
-  return y + 10;
-}
-
-function drawGridRows(doc: jsPDF, rows: Array<[string, string]>, x: number, cellWidth: number, gutter: number, startY: number) {
-  let y = startY;
-
-  for (let index = 0; index < rows.length; index += 2) {
-    const left = rows[index];
-    const right = rows[index + 1];
-
-    const leftHeight = measureCellHeight(doc, left, cellWidth);
-    const rightHeight = right ? measureCellHeight(doc, right, cellWidth) : leftHeight;
-    const rowHeight = Math.max(leftHeight, rightHeight);
-
-    drawCell(doc, left, x, y, cellWidth, rowHeight);
-
-    if (right) {
-      drawCell(doc, right, x + cellWidth + gutter, y, cellWidth, rowHeight);
+    if (uni !== 0) {
+      return uni;
     }
 
-    y += rowHeight + 10;
-  }
+    return cleanText(a.programName).localeCompare(cleanText(b.programName));
+  });
 
-  return y;
-}
+  const cardsPerPage = 3;
+  const totalPages = Math.max(1, Math.ceil(sortedPrograms.length / cardsPerPage));
 
-function measureCellHeight(doc: jsPDF, row: [string, string], cellWidth: number) {
-  const [, value] = row;
-  const valueLines = splitForCell(doc, value, cellWidth - 24);
-  return Math.max(52, 26 + valueLines.length * 15);
-}
+  sortedPrograms.forEach((program, index) => {
+    const pageIndex = Math.floor(index / cardsPerPage);
+    const cardIndex = index % cardsPerPage;
 
-function drawCell(doc: jsPDF, row: [string, string], x: number, y: number, width: number, height: number) {
-  const [label, value] = row;
-  const isArabic = containsArabic(value) && arabicFontAvailable;
-  const valueLines = splitForCell(doc, value, width - 24);
+    if (index > 0 && cardIndex === 0) {
+      doc.addPage();
+    }
 
-  doc.setDrawColor(223, 214, 199);
-  doc.setFillColor(252, 249, 244);
-  doc.roundedRect(x, y, width, height, 10, 10, "FD");
+    if (cardIndex === 0) {
+      drawPageFrame(doc, {
+        pageIndex,
+        totalPages,
+        totalPrograms: sortedPrograms.length
+      });
+    }
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(120, 102, 80);
-  doc.text(label.toUpperCase(), x + 10, y + 15);
-
-  drawText(doc, valueLines, isArabic ? x + width - 10 : x + 10, y + 34, {
-    color: [17, 24, 39],
-    fontSize: 12,
-    bold: true,
-    maxWidth: width - 20
+    drawProgramCard(doc, program, visibility, cardIndex);
   });
 }
 
-function drawText(
+function drawPageFrame(
   doc: jsPDF,
-  value: string | string[],
-  x: number,
-  y: number,
   options: {
-    color: [number, number, number];
-    fontSize: number;
-    bold?: boolean;
-    maxWidth: number;
+    pageIndex: number;
+    totalPages: number;
+    totalPrograms: number;
   }
 ) {
-  const raw = Array.isArray(value) ? value.join(" ") : value;
-  const isArabic = containsArabic(raw);
-  const processed = Array.isArray(value)
-    ? value.map((line) => processArabicText(doc, line))
-    : processArabicText(doc, value);
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const marginX = 24;
+  const contentWidth = pageWidth - marginX * 2;
 
-  if (isArabic && arabicFontAvailable) {
+  doc.setFillColor(245, 248, 251);
+  doc.setDrawColor(222, 230, 238);
+  doc.roundedRect(marginX, 20, contentWidth, 40, 10, 10, "FD");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(21, 40, 61);
+  doc.text("Student On Board | Program Catalog", marginX + 12, 44);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(78, 101, 124);
+  doc.text("Grouped by university | Up to 3 courses per page", marginX + 12, 56);
+
+  const pageBadge = `Page ${options.pageIndex + 1} / ${options.totalPages}`;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(54, 72, 92);
+  doc.text(pageBadge, pageWidth - marginX - 12, 36, { align: "right" });
+  doc.setFont("helvetica", "normal");
+  doc.text(`${options.totalPrograms} program(s)`, pageWidth - marginX - 12, 50, { align: "right" });
+
+  doc.setDrawColor(222, 230, 238);
+  doc.line(marginX, pageHeight - 28, marginX + contentWidth, pageHeight - 28);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(120, 134, 149);
+  doc.text("Generated by Student On Board", marginX, pageHeight - 14);
+}
+
+function drawProgramCard(doc: jsPDF, program: PrintableProgram, visibility: PdfVisibilitySettings, cardIndex: number) {
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const marginX = 24;
+  const contentWidth = pageWidth - marginX * 2;
+  const topY = 72;
+  const footerTop = doc.internal.pageSize.getHeight() - 36;
+  const cardGap = 12;
+  const cardHeight = (footerTop - topY - cardGap * 2) / 3;
+  const y = topY + cardIndex * (cardHeight + cardGap);
+
+  doc.setFillColor(255, 255, 255);
+  doc.setDrawColor(214, 224, 235);
+  doc.roundedRect(marginX, y, contentWidth, cardHeight, 10, 10, "FD");
+
+  const university = visibility.showUniversity ? cleanText(program.universityName) : "University hidden";
+  const title = visibility.showProgram ? cleanText(program.programName) : "Program hidden";
+  const quota = visibility.showQuotaStatus ? (program.quotaFull ? "Quota full" : "Available") : null;
+
+  drawSingleLineText(doc, university, marginX + 12, y + 16, contentWidth - 24, {
+    fontSize: 12,
+    color: [17, 47, 80],
+    bold: true
+  });
+
+  if (quota) {
+    const quotaText = `Status: ${quota}`;
+    drawSingleLineText(doc, quotaText, marginX + contentWidth - 12, y + 16, contentWidth * 0.35, {
+      fontSize: 8,
+      color: [88, 106, 126],
+      align: "right"
+    });
+  }
+
+  drawSingleLineText(doc, title, marginX + 12, y + 34, contentWidth - 24, {
+    fontSize: 11,
+    color: [33, 41, 52],
+    bold: true
+  });
+
+  doc.setDrawColor(232, 238, 245);
+  doc.line(marginX + 12, y + 42, marginX + contentWidth - 12, y + 42);
+
+  const currency = cleanText(program.currencyType, "USD");
+  const entries: Array<[string, string]> = [];
+
+  if (visibility.showDegree) entries.push(["Degree", cleanText(program.programDegree)]);
+  if (visibility.showLanguage) entries.push(["Language", cleanText(program.language)]);
+  if (visibility.showCampus) entries.push(["Campus", cleanText(program.campus)]);
+  if (visibility.showAcademicYear) entries.push(["Year", cleanText(program.academicYear)]);
+  if (visibility.showSemester) entries.push(["Semester", cleanText(program.semester)]);
+  if (visibility.showCurrency) entries.push(["Currency", currency]);
+  if (visibility.showTuitionFee) entries.push(["Tuition", printableCurrency(program.tuitionFee, currency)]);
+  if (visibility.showDiscountedFee) entries.push(["Discounted", printableCurrency(program.discountedTuitionFee, currency)]);
+  if (visibility.showPrepSchoolFee) entries.push(["Prep", printableCurrency(program.prepSchoolFee, currency)]);
+  if (visibility.showCashPaymentFee) entries.push(["Cash", printableCurrency(program.cashPaymentFee, currency)]);
+  if (visibility.showDepositPrice) entries.push(["Deposit", printableCurrency(program.depositPrice, currency)]);
+
+  const leftEntries = entries.filter((_, index) => index % 2 === 0);
+  const rightEntries = entries.filter((_, index) => index % 2 === 1);
+
+  const colGap = 12;
+  const colWidth = (contentWidth - 24 - colGap) / 2;
+  const rowHeight = 12;
+  const startY = y + 54;
+
+  leftEntries.forEach(([label, value], index) => {
+    const rowY = startY + index * rowHeight;
+    drawMetaRow(doc, label, value, marginX + 12, rowY, colWidth);
+  });
+
+  rightEntries.forEach(([label, value], index) => {
+    const rowY = startY + index * rowHeight;
+    drawMetaRow(doc, label, value, marginX + 12 + colWidth + colGap, rowY, colWidth);
+  });
+}
+
+function drawMetaRow(doc: jsPDF, label: string, value: string, x: number, y: number, width: number) {
+  const labelWidth = width * 0.32;
+  drawSingleLineText(doc, `${label}:`, x, y, labelWidth, {
+    fontSize: 8,
+    color: [100, 113, 129],
+    bold: true
+  });
+
+  drawSingleLineText(doc, value, x + labelWidth + 2, y, width - labelWidth - 2, {
+    fontSize: 8,
+    color: [35, 46, 60]
+  });
+}
+
+function drawSingleLineText(
+  doc: jsPDF,
+  value: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  options: {
+    fontSize: number;
+    color: [number, number, number];
+    bold?: boolean;
+    align?: "left" | "right";
+  }
+) {
+  const processed = processArabicText(doc, value);
+  const isArabic = containsArabic(value) && arabicFontAvailable;
+
+  if (isArabic) {
     doc.setFont("ArialUnicode", "normal");
     doc.setR2L(true);
   } else {
@@ -241,25 +233,28 @@ function drawText(
   doc.setFontSize(options.fontSize);
   doc.setTextColor(...options.color);
 
-  doc.text(processed as string | string[], x, y, {
-    maxWidth: options.maxWidth,
-    align: isArabic ? "right" : "left"
+  const alignedRight = options.align === "right";
+  const rendered = ellipsizeText(doc, processed, maxWidth);
+
+  doc.text(rendered, x, y, {
+    align: alignedRight || isArabic ? "right" : "left"
   });
 
   doc.setR2L(false);
 }
 
-function splitForCell(doc: jsPDF, value: string, maxWidth: number) {
-  const isArabic = containsArabic(value) && arabicFontAvailable;
-
-  if (isArabic) {
-    doc.setFont("ArialUnicode", "normal");
-  } else {
-    doc.setFont("helvetica", "normal");
+function ellipsizeText(doc: jsPDF, text: string, maxWidth: number) {
+  if (doc.getTextWidth(text) <= maxWidth) {
+    return text;
   }
 
-  const lines = doc.splitTextToSize(value, maxWidth) as string[];
-  return lines.map((line) => processArabicText(doc, line));
+  let output = text;
+
+  while (output.length > 1 && doc.getTextWidth(`${output}...`) > maxWidth) {
+    output = output.slice(0, -1);
+  }
+
+  return `${output}...`;
 }
 
 function ensureArabicFont(doc: jsPDF) {
