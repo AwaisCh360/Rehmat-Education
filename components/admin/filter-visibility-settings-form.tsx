@@ -138,10 +138,6 @@ export function FilterVisibilitySettingsForm({
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="rounded-xl border border-border/70 bg-background/70 px-4 py-3 text-xs text-muted-foreground">
-              This default applies when agents open the programs page. They can still switch between views manually.
-            </div>
           </div>
         </div>
 
