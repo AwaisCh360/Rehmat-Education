@@ -96,11 +96,13 @@ export async function getPrograms(params: ProgramListParams) {
       })
     );
     const total = filtered.length;
+    const totalCatalog = source.length;
     const items = filtered.slice((page - 1) * pageSize, page * pageSize).map(toProgramListItem);
 
     return {
       items,
       total,
+      totalCatalog,
       page,
       pageSize,
       totalPages: Math.max(Math.ceil(total / pageSize), 1)

@@ -45,7 +45,7 @@ export default async function ProgramsPage({
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
-              <StatCard icon={School2} label="Programs returned" value={formatCount(catalog.total)} />
+              <StatCard icon={School2} label="Programs in catalog" value={formatCount(catalog.totalCatalog)} />
               <StatCard icon={GraduationCap} label="Degrees available" value={formatCount(options.degrees.length)} />
               <StatCard icon={Languages} label="Languages covered" value={formatCount(options.languages.length)} />
             </div>
