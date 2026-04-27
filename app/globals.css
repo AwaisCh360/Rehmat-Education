@@ -81,16 +81,19 @@ textarea {
 }
 
 .topbar-ticker-track {
-  display: flex;
-  width: max-content;
-  min-width: 200%;
-  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  display: inline-flex;
   align-items: center;
-  gap: 2.5rem;
+  white-space: nowrap;
   will-change: transform;
 }
 
 .topbar-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  padding-right: 3rem;
   white-space: nowrap;
   font-size: 0.8rem;
   font-weight: 600;
@@ -108,20 +111,20 @@ textarea {
 
 @keyframes topbar-ticker-ltr {
   from {
-    transform: translateX(0);
+    transform: translate(-50%, -50%);
   }
 
   to {
-    transform: translateX(-50%);
+    transform: translate(0, -50%);
   }
 }
 
 @keyframes topbar-ticker-rtl {
   from {
-    transform: translateX(-50%);
+    transform: translate(0, -50%);
   }
 
   to {
-    transform: translateX(0);
+    transform: translate(-50%, -50%);
   }
 }
