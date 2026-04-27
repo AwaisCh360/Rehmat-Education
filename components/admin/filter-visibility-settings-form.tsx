@@ -150,6 +150,7 @@ export function FilterVisibilitySettingsForm({
   const [importSettings, setImportSettings] = useState(initialImportSettings);
   const [portalSettings, setPortalSettings] = useState(initialPortalSettings);
   const [logoError, setLogoError] = useState<string | null>(null);
+  const [slidesError, setSlidesError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isSyncPending, startSyncTransition] = useTransition();
   const [showLayoutFields, setShowLayoutFields] = useState(false);
@@ -254,6 +255,78 @@ export function FilterVisibilitySettingsForm({
                   </Button>
                 </div>
               ) : null}
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="portal-slides">Hero slideshow images (1080x720, max 2MB each)</Label>
+              <Input
+                accept="image/png,image/jpeg,image/jpg,image/webp"
+                id="portal-slides"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+
+                  if (!file) {
+                    return;
+                  }
+
+                  if (file.size > 2 * 1024 * 1024) {
+                    setSlidesError("Each slide must be 2MB or less.");
+                    return;
+                  }
+
+                  if (portalSettings.heroSlides.length >= 10) {
+                    setSlidesError("Maximum 10 slides allowed.");
+                    return;
+                  }
+
+                  setSlidesError(null);
+
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    const result = typeof reader.result === "string" ? reader.result : "";
+
+                    if (!result.startsWith("data:image/")) {
+                      setSlidesError("Please upload a valid image file.");
+                      return;
+                    }
+
+                    setPortalSettings((current) => ({
+                      ...current,
+                      heroSlides: [...current.heroSlides, result]
+                    }));
+                  };
+                  reader.readAsDataURL(file);
+
+                  event.currentTarget.value = "";
+                }}
+                type="file"
+              />
+              {slidesError ? <p className="text-xs text-destructive">{slidesError}</p> : null}
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {portalSettings.heroSlides.map((slide, index) => (
+                  <div key={`${slide.slice(0, 24)}-${index}`} className="overflow-hidden rounded-xl border border-border/70 bg-background">
+                    <div className="aspect-[3/2] w-full">
+                      <img alt={`Slide ${index + 1}`} className="h-full w-full object-cover" src={slide} />
+                    </div>
+                    <div className="flex items-center justify-between px-3 py-2">
+                      <div className="text-xs text-muted-foreground">Slide {index + 1}</div>
+                      <Button
+                        onClick={() =>
+                          setPortalSettings((current) => ({
+                            ...current,
+                            heroSlides: current.heroSlides.filter((_, itemIndex) => itemIndex !== index)
+                          }))
+                        }
+                        size="sm"
+                        type="button"
+                        variant="outline"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <label className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 px-4 py-3 md:col-span-2">

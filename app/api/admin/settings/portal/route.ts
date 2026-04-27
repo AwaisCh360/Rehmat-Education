@@ -8,6 +8,7 @@ const portalSettingsSchema = z.object({
   appName: z.string().trim().min(2).max(80),
   slogan: z.string().trim().min(5).max(140),
   logoDataUrl: z.string().trim().optional().nullable(),
+  heroSlides: z.array(z.string().trim()).max(10),
   signupEnabled: z.boolean(),
   defaultProgramLayout: z.enum(["table", "card"]),
   programDisplay: z.object({
@@ -44,6 +45,7 @@ const portalSettingsSchema = z.object({
 });
 
 const MAX_LOGO_BYTES = 2 * 1024 * 1024;
+const MAX_SLIDE_BYTES = 2 * 1024 * 1024;
 
 function estimateDataUrlBytes(dataUrl: string) {
   const parts = dataUrl.split(",", 2);
@@ -93,10 +95,27 @@ export async function POST(request: Request) {
     }
   }
 
+  const normalizedSlides = parsed.data.heroSlides
+    .map((value) => value.trim())
+    .filter((value) => value.length > 0);
+
+  for (const slide of normalizedSlides) {
+    const byteSize = estimateDataUrlBytes(slide);
+
+    if (byteSize === null) {
+      return NextResponse.json({ error: "Each slide must be a valid image file." }, { status: 400 });
+    }
+
+    if (byteSize > MAX_SLIDE_BYTES) {
+      return NextResponse.json({ error: "Each slide image must be 2MB or less." }, { status: 400 });
+    }
+  }
+
   const settings = await setPortalSettings({
     ...defaultPortalSettings,
     ...parsed.data,
-    logoDataUrl: normalizedLogo
+    logoDataUrl: normalizedLogo,
+    heroSlides: normalizedSlides
   });
 
   return NextResponse.json({ ok: true, settings });

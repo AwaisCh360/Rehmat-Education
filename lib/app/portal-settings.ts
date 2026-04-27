@@ -4,6 +4,7 @@ export type PortalSettings = {
   appName: string;
   slogan: string;
   logoDataUrl: string | null;
+  heroSlides: string[];
   signupEnabled: boolean;
   defaultProgramLayout: "table" | "card";
   programDisplay: {
@@ -45,6 +46,7 @@ export const defaultPortalSettings: PortalSettings = {
   appName: "Student On Board",
   slogan: "Plan Today, Study Tomorrow, Succeed Forever",
   logoDataUrl: null,
+  heroSlides: [],
   signupEnabled: true,
   defaultProgramLayout: "table",
   programDisplay: {
@@ -141,6 +143,9 @@ function normalizePortalSettings(valueJson: string): PortalSettings {
       appName: typeof parsed.appName === "string" && parsed.appName.trim().length > 0 ? parsed.appName.trim() : defaultPortalSettings.appName,
       slogan: typeof parsed.slogan === "string" && parsed.slogan.trim().length > 0 ? parsed.slogan.trim() : defaultPortalSettings.slogan,
       logoDataUrl: typeof parsed.logoDataUrl === "string" && parsed.logoDataUrl.trim().length > 0 ? parsed.logoDataUrl : null,
+      heroSlides: Array.isArray(parsed.heroSlides)
+        ? parsed.heroSlides.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+        : defaultPortalSettings.heroSlides,
       signupEnabled: parsed.signupEnabled ?? defaultPortalSettings.signupEnabled,
       defaultProgramLayout: parsed.defaultProgramLayout === "card" ? "card" : "table",
       programDisplay: {
