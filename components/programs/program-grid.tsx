@@ -103,23 +103,23 @@ export function ProgramGrid({
         <div className="overflow-hidden rounded-2xl border border-border/70 bg-card">
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader className="sticky top-16 z-20 bg-card shadow-sm">
+              <TableHeader className="bg-card shadow-sm">
                 <TableRow>
-                  <TableHead className="w-[52px]">Select</TableHead>
-                  <TableHead>University</TableHead>
-                  <TableHead>Program</TableHead>
-                  <TableHead>Degree</TableHead>
-                  <TableHead>Language</TableHead>
-                  <TableHead>Campus</TableHead>
-                  <TableHead>Discounted</TableHead>
-                  <TableHead>Original</TableHead>
-                  <TableHead>Cash</TableHead>
-                  <TableHead>Deposit</TableHead>
-                  <TableHead>Prep School</TableHead>
-                  <TableHead className="whitespace-nowrap">Year</TableHead>
-                  <TableHead>Semester</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Details</TableHead>
+                  <TableHead className="sticky top-16 z-20 w-[52px] bg-card">Select</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card">University</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card">Program</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card">Degree</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card">Language</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card">Campus</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card">Discounted</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card">Original</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card">Cash</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card">Deposit</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card">Prep School</TableHead>
+                  <TableHead className="sticky top-16 z-20 whitespace-nowrap bg-card">Year</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card">Semester</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card">Status</TableHead>
+                  <TableHead className="sticky top-16 z-20 bg-card text-right">Details</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
