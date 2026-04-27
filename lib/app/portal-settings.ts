@@ -4,6 +4,7 @@ export type PortalSettings = {
   appName: string;
   slogan: string;
   movingHeaderText: string;
+  tickerDurationSeconds: number;
   logoDataUrl: string | null;
   heroSlides: string[];
   signupEnabled: boolean;
@@ -47,6 +48,7 @@ export const defaultPortalSettings: PortalSettings = {
   appName: "Student On Board",
   slogan: "Plan Today, Study Tomorrow, Succeed Forever",
   movingHeaderText: "Plan Today, Study Tomorrow, Succeed Forever",
+  tickerDurationSeconds: 37,
   logoDataUrl: null,
   heroSlides: [],
   signupEnabled: true,
@@ -150,6 +152,13 @@ function normalizePortalSettings(valueJson: string): PortalSettings {
           : typeof parsed.slogan === "string" && parsed.slogan.trim().length > 0
             ? parsed.slogan.trim()
             : defaultPortalSettings.movingHeaderText,
+      tickerDurationSeconds:
+        typeof parsed.tickerDurationSeconds === "number" &&
+        Number.isFinite(parsed.tickerDurationSeconds) &&
+        parsed.tickerDurationSeconds >= 12 &&
+        parsed.tickerDurationSeconds <= 120
+          ? Math.round(parsed.tickerDurationSeconds)
+          : defaultPortalSettings.tickerDurationSeconds,
       logoDataUrl: typeof parsed.logoDataUrl === "string" && parsed.logoDataUrl.trim().length > 0 ? parsed.logoDataUrl : null,
       heroSlides: Array.isArray(parsed.heroSlides)
         ? parsed.heroSlides.filter((item): item is string => typeof item === "string" && item.trim().length > 0)

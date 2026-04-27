@@ -218,6 +218,27 @@ export function FilterVisibilitySettingsForm({
             </div>
 
             <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="portal-ticker-duration">Moving text duration (seconds)</Label>
+              <Input
+                id="portal-ticker-duration"
+                max={120}
+                min={12}
+                onChange={(event) => {
+                  const nextValue = Number.parseInt(event.target.value, 10);
+
+                  setPortalSettings((current) => ({
+                    ...current,
+                    tickerDurationSeconds: Number.isFinite(nextValue) ? Math.min(120, Math.max(12, nextValue)) : current.tickerDurationSeconds
+                  }));
+                }}
+                step={1}
+                type="number"
+                value={portalSettings.tickerDurationSeconds}
+              />
+              <p className="text-xs text-muted-foreground">Recommended range: 24-45. Larger number means slower, smoother scrolling.</p>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="portal-logo">Logo (max 2MB)</Label>
               <Input
                 accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
