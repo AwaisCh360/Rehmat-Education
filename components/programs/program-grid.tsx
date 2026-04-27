@@ -100,25 +100,25 @@ export function ProgramGrid({
       </div>
 
       {viewMode === "table" ? (
-        <div className="overflow-hidden rounded-2xl border border-border/70 bg-card">
-            <Table>
-              <TableHeader className="bg-card shadow-sm">
+        <div className="rounded-2xl border border-border/70 bg-card">
+            <Table className="[border-collapse:separate] [border-spacing:0]">
+              <TableHeader className="bg-card">
                 <TableRow>
-                  <TableHead className="sticky top-16 z-20 w-[52px] border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Select</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">University</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Program</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Degree</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Language</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Campus</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Discounted</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Original</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Cash</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Deposit</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Prep School</TableHead>
-                  <TableHead className="sticky top-16 z-20 whitespace-nowrap border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Year</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Semester</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Status</TableHead>
-                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 text-right backdrop-blur supports-[backdrop-filter]:bg-card/90">Details</TableHead>
+                  <TableHead className="sticky top-16 z-30 w-[52px] border-b border-border/70 bg-card">Select</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">University</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Program</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Degree</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Language</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Campus</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Discounted</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Original</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Cash</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Deposit</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Prep School</TableHead>
+                  <TableHead className="sticky top-16 z-30 whitespace-nowrap border-b border-border/70 bg-card">Year</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Semester</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Status</TableHead>
+                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card text-right">Details</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
