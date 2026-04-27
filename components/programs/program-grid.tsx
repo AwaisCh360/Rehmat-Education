@@ -101,9 +101,9 @@ export function ProgramGrid({
 
       {viewMode === "table" ? (
         <div className="overflow-hidden rounded-2xl border border-border/70 bg-card">
-          <div className="overflow-x-auto">
+          <div className="max-h-[72vh] overflow-auto">
             <Table>
-              <TableHeader>
+              <TableHeader className="sticky top-0 z-20 bg-card shadow-sm">
                 <TableRow>
                   <TableHead className="w-[52px]">Select</TableHead>
                   <TableHead>University</TableHead>
