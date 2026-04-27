@@ -37,8 +37,10 @@ export function Topbar({
   };
 }) {
   const tickerText = branding.movingHeaderText.trim().length ? branding.movingHeaderText : `${branding.appName} admissions updates`;
-  // Default ticker direction: right-to-left, but treat Urdu as left-to-right
+  // Script-based direction (for proper `dir` attribute) and desired animation direction.
+  const scriptIsRtl = containsRtlScript(tickerText);
   const isUrduTicker = containsUrduLetters(tickerText);
+  // Default animation direction: right-to-left for most text, but use left-to-right for Urdu
   const isRtlTicker = !isUrduTicker;
   const tickerDurationSeconds = Math.min(120, Math.max(12, Math.round(branding.tickerDurationSeconds || 37)));
   const tickerStyle = {
