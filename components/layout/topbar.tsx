@@ -83,7 +83,8 @@ export function Topbar({
         <div className="relative hidden h-10 flex-1 overflow-hidden rounded-full border border-border/70 bg-muted/35 md:block">
           <div
             className={isRtlTicker ? "topbar-ticker-track topbar-ticker-track-rtl" : "topbar-ticker-track topbar-ticker-track-ltr"}
-            dir={isRtlTicker ? "rtl" : "ltr"}
+            // `dir` must reflect the script direction so punctuation/line-breaking is correct
+            dir={scriptIsRtl ? "rtl" : "ltr"}
             style={tickerStyle}
           >
             <div className="topbar-ticker-segment">{tickerItems}</div>
