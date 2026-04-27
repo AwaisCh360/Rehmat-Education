@@ -72,6 +72,68 @@ const pdfLabelMap: Record<keyof PdfVisibilitySettings, string> = {
   showDepositPrice: "Deposit price"
 };
 
+const tableFieldLabels: Array<keyof PortalSettings["programDisplay"]["table"]> = [
+  "university",
+  "programName",
+  "degree",
+  "language",
+  "campus",
+  "discountedFee",
+  "originalFee",
+  "cashFee",
+  "depositFee",
+  "prepSchoolFee",
+  "academicYear",
+  "semester",
+  "status"
+];
+
+const tableFieldLabelMap: Record<keyof PortalSettings["programDisplay"]["table"], string> = {
+  university: "University",
+  programName: "Program",
+  degree: "Degree",
+  language: "Language",
+  campus: "Campus",
+  discountedFee: "Discounted fee",
+  originalFee: "Original fee",
+  cashFee: "Cash",
+  depositFee: "Deposit",
+  prepSchoolFee: "Prep school",
+  academicYear: "Year",
+  semester: "Semester",
+  status: "Status"
+};
+
+const cardFieldLabels: Array<keyof PortalSettings["programDisplay"]["card"]> = [
+  "university",
+  "programName",
+  "degree",
+  "language",
+  "campus",
+  "status",
+  "originalFee",
+  "discountedFee",
+  "cashFee",
+  "depositFee",
+  "prepSchoolFee",
+  "academicYear"
+];
+
+const cardFieldLabelMap: Record<keyof PortalSettings["programDisplay"]["card"], string> = {
+  university: "University",
+  programName: "Program",
+  degree: "Degree",
+  language: "Language",
+  campus: "Campus",
+  status: "Status",
+  originalFee: "Original fee",
+  discountedFee: "Discounted fee",
+  cashFee: "Cash",
+  depositFee: "Deposit",
+  prepSchoolFee: "Prep school",
+  academicYear: "Academic year"
+};
+
 export function FilterVisibilitySettingsForm({
   initialFilterSettings,
   initialPdfSettings,
@@ -90,6 +152,7 @@ export function FilterVisibilitySettingsForm({
   const [logoError, setLogoError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isSyncPending, startSyncTransition] = useTransition();
+  const [showLayoutFields, setShowLayoutFields] = useState(false);
   const [showFilterFields, setShowFilterFields] = useState(false);
   const [showImportControls, setShowImportControls] = useState(false);
   const [showPdfFields, setShowPdfFields] = useState(false);
@@ -229,6 +292,69 @@ export function FilterVisibilitySettingsForm({
               </Select>
             </div>
           </div>
+        </div>
+
+        <div className="space-y-3">
+          <SectionToggle isOpen={showLayoutFields} label="Programs table and card fields" onClick={() => setShowLayoutFields((current) => !current)} />
+          {showLayoutFields ? (
+            <div className="grid gap-6 rounded-2xl border border-border/70 bg-muted/20 p-4 lg:grid-cols-2">
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">Table fields</h4>
+                <div className="grid gap-3">
+                  {tableFieldLabels.map((field) => (
+                    <label key={field} className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 px-4 py-3">
+                      <span className="text-sm font-medium">{tableFieldLabelMap[field]}</span>
+                      <input
+                        checked={portalSettings.programDisplay.table[field]}
+                        className="h-4 w-4 accent-primary"
+                        onChange={(event) =>
+                          setPortalSettings((current) => ({
+                            ...current,
+                            programDisplay: {
+                              ...current.programDisplay,
+                              table: {
+                                ...current.programDisplay.table,
+                                [field]: event.target.checked
+                              }
+                            }
+                          }))
+                        }
+                        type="checkbox"
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">Card fields</h4>
+                <div className="grid gap-3">
+                  {cardFieldLabels.map((field) => (
+                    <label key={field} className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 px-4 py-3">
+                      <span className="text-sm font-medium">{cardFieldLabelMap[field]}</span>
+                      <input
+                        checked={portalSettings.programDisplay.card[field]}
+                        className="h-4 w-4 accent-primary"
+                        onChange={(event) =>
+                          setPortalSettings((current) => ({
+                            ...current,
+                            programDisplay: {
+                              ...current.programDisplay,
+                              card: {
+                                ...current.programDisplay.card,
+                                [field]: event.target.checked
+                              }
+                            }
+                          }))
+                        }
+                        type="checkbox"
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <div className="space-y-3">

@@ -9,7 +9,38 @@ const portalSettingsSchema = z.object({
   slogan: z.string().trim().min(5).max(140),
   logoDataUrl: z.string().trim().optional().nullable(),
   signupEnabled: z.boolean(),
-  defaultProgramLayout: z.enum(["table", "card"])
+  defaultProgramLayout: z.enum(["table", "card"]),
+  programDisplay: z.object({
+    table: z.object({
+      university: z.boolean(),
+      programName: z.boolean(),
+      degree: z.boolean(),
+      language: z.boolean(),
+      campus: z.boolean(),
+      discountedFee: z.boolean(),
+      originalFee: z.boolean(),
+      cashFee: z.boolean(),
+      depositFee: z.boolean(),
+      prepSchoolFee: z.boolean(),
+      academicYear: z.boolean(),
+      semester: z.boolean(),
+      status: z.boolean()
+    }),
+    card: z.object({
+      university: z.boolean(),
+      programName: z.boolean(),
+      degree: z.boolean(),
+      language: z.boolean(),
+      campus: z.boolean(),
+      status: z.boolean(),
+      originalFee: z.boolean(),
+      discountedFee: z.boolean(),
+      cashFee: z.boolean(),
+      depositFee: z.boolean(),
+      prepSchoolFee: z.boolean(),
+      academicYear: z.boolean()
+    })
+  })
 });
 
 const MAX_LOGO_BYTES = 2 * 1024 * 1024;

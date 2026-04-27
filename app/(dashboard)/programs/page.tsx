@@ -63,7 +63,7 @@ export default async function ProgramsPage({
       </section>
 
       <ProgramsToolbar basePath="/programs" currentPage={catalog.page} filterVisibility={filterVisibility} initialFilters={filters} mode="browse" options={options} resultCount={catalog.total} />
-      <ProgramGrid defaultViewMode={portalSettings.defaultProgramLayout} programs={catalog.items} />
+      <ProgramGrid defaultViewMode={portalSettings.defaultProgramLayout} displaySettings={portalSettings.programDisplay} programs={catalog.items} />
       <Pagination basePath="/programs" currentPage={catalog.page} searchParams={cleanParams} totalPages={catalog.totalPages} />
     </div>
   );

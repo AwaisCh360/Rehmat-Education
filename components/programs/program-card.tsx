@@ -8,11 +8,26 @@ import { formatCurrency, formatNullable } from "@/lib/utils";
 
 export function ProgramCard({
   program,
+  visibility,
   selectable = false,
   selected = false,
   onSelectedChange
 }: {
   program: ProgramListItem;
+  visibility: {
+    university: boolean;
+    programName: boolean;
+    degree: boolean;
+    language: boolean;
+    campus: boolean;
+    status: boolean;
+    originalFee: boolean;
+    discountedFee: boolean;
+    cashFee: boolean;
+    depositFee: boolean;
+    prepSchoolFee: boolean;
+    academicYear: boolean;
+  };
   selectable?: boolean;
   selected?: boolean;
   onSelectedChange?: (selected: boolean) => void;
@@ -27,6 +42,9 @@ export function ProgramCard({
     typeof program.tuitionFee === "number" &&
     typeof program.discountedTuitionFee === "number" &&
     program.discountedTuitionFee < program.tuitionFee;
+  const showMetaChips = visibility.degree || visibility.language || visibility.campus;
+  const showFeeBlock = visibility.originalFee || visibility.discountedFee || visibility.cashFee || visibility.depositFee || visibility.prepSchoolFee;
+  const showInlineMetrics = visibility.cashFee || visibility.depositFee || visibility.prepSchoolFee;
 
   return (
     <Card className="group h-full overflow-hidden rounded-3xl border-border/70 bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-emerald-700/30 hover:shadow-[0_16px_40px_rgba(15,23,42,0.12)]">
@@ -40,16 +58,14 @@ export function ProgramCard({
             <div className="min-w-0 space-y-3">
               <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground backdrop-blur">
                 <Building2 className="h-3.5 w-3.5" />
-                University
+                {visibility.university ? "University" : "Program"}
               </div>
 
               <div className="space-y-2">
-                <div className="break-words text-2xl font-bold leading-tight text-foreground">
-                  {program.universityName}
-                </div>
-                <CardTitle className="break-words text-xl leading-tight tracking-tight text-foreground/90">
-                  {program.programName}
-                </CardTitle>
+                {visibility.university ? <div className="break-words text-2xl font-bold leading-tight text-foreground">{program.universityName}</div> : null}
+                {visibility.programName ? (
+                  <CardTitle className="break-words text-xl leading-tight tracking-tight text-foreground/90">{program.programName}</CardTitle>
+                ) : null}
               </div>
             </div>
 
@@ -64,60 +80,78 @@ export function ProgramCard({
                   />
                 </label>
               ) : null}
-              <ProgramStatusBadge quotaFull={program.quotaFull} />
+              {visibility.status ? <ProgramStatusBadge quotaFull={program.quotaFull} /> : null}
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-muted/60 px-3 py-1.5">
-              <GraduationCap className="h-3.5 w-3.5" />
-              {formatNullable(program.programDegree)}
+          {showMetaChips ? (
+            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+              {visibility.degree ? (
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-muted/60 px-3 py-1.5">
+                  <GraduationCap className="h-3.5 w-3.5" />
+                  {formatNullable(program.programDegree)}
+                </div>
+              ) : null}
+              {visibility.language ? (
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-muted/60 px-3 py-1.5">
+                  <Languages className="h-3.5 w-3.5" />
+                  {formatNullable(program.language)}
+                </div>
+              ) : null}
+              {visibility.campus ? (
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-muted/60 px-3 py-1.5">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {formatNullable(program.campus)}
+                </div>
+              ) : null}
             </div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-muted/60 px-3 py-1.5">
-              <Languages className="h-3.5 w-3.5" />
-              {formatNullable(program.language)}
-            </div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-muted/60 px-3 py-1.5">
-              <MapPin className="h-3.5 w-3.5" />
-              {formatNullable(program.campus)}
-            </div>
-          </div>
+          ) : null}
         </CardHeader>
 
         <CardContent className="relative space-y-4 px-6 pb-6 pt-0">
-          <div className="rounded-3xl border border-border/70 bg-background p-4 shadow-sm">
+          {showFeeBlock ? (
+            <div className="rounded-3xl border border-border/70 bg-background p-4 shadow-sm">
             <div className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Fee snapshot</div>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-[1.15fr_0.85fr]">
-              <div className="rounded-2xl border border-border/70 bg-muted/35 p-4">
-                <div className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Original fee</div>
-                <div className={hasDiscount ? "mt-2 text-lg font-semibold text-destructive line-through" : "mt-2 text-lg font-semibold text-foreground"}>
-                  {tuitionFee}
+              {visibility.originalFee ? (
+                <div className="rounded-2xl border border-border/70 bg-muted/35 p-4">
+                  <div className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Original fee</div>
+                  <div className={hasDiscount ? "mt-2 text-lg font-semibold text-destructive line-through" : "mt-2 text-lg font-semibold text-foreground"}>
+                    {tuitionFee}
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
-              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
-                <div className="text-xs font-medium uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">Discounted fee</div>
-                <div className="mt-2 text-2xl font-semibold text-emerald-700 dark:text-emerald-300">
-                  {discountedFee}
+              {visibility.discountedFee ? (
+                <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+                  <div className="text-xs font-medium uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">Discounted fee</div>
+                  <div className="mt-2 text-2xl font-semibold text-emerald-700 dark:text-emerald-300">
+                    {discountedFee}
+                  </div>
                 </div>
+              ) : null}
+            </div>
+
+            {showInlineMetrics ? (
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                {visibility.cashFee ? <InlineMetric label="Cash" value={cashPaymentFee} /> : null}
+                {visibility.depositFee ? <InlineMetric label="Deposit" value={depositFee} /> : null}
+                {visibility.prepSchoolFee ? <InlineMetric label="Prep school" value={prepSchoolFee} /> : null}
               </div>
+            ) : null}
             </div>
+          ) : null}
 
-            <div className="mt-3 grid gap-2 sm:grid-cols-3">
-              <InlineMetric label="Cash" value={cashPaymentFee} />
-              <InlineMetric label="Deposit" value={depositFee} />
-              <InlineMetric label="Prep school" value={prepSchoolFee} />
+          {visibility.academicYear ? (
+            <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-muted/30 px-4 py-3 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Building2 className="h-4 w-4" />
+                Academic year
+              </div>
+              <div className="font-medium text-foreground">{program.academicYear ?? "Not specified"}</div>
             </div>
-          </div>
-
-          <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-muted/30 px-4 py-3 text-sm">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Building2 className="h-4 w-4" />
-              Academic year
-            </div>
-            <div className="font-medium text-foreground">{program.academicYear ?? "Not specified"}</div>
-          </div>
+          ) : null}
         </CardContent>
 
         <CardFooter className="relative px-6 pb-6 pt-0">

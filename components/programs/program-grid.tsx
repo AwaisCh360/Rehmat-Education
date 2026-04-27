@@ -13,9 +13,41 @@ import { formatCurrency, formatNullable } from "@/lib/utils";
 
 export function ProgramGrid({
   programs,
+  displaySettings,
   defaultViewMode = "table"
 }: {
   programs: ProgramListItem[];
+  displaySettings: {
+    table: {
+      university: boolean;
+      programName: boolean;
+      degree: boolean;
+      language: boolean;
+      campus: boolean;
+      discountedFee: boolean;
+      originalFee: boolean;
+      cashFee: boolean;
+      depositFee: boolean;
+      prepSchoolFee: boolean;
+      academicYear: boolean;
+      semester: boolean;
+      status: boolean;
+    };
+    card: {
+      university: boolean;
+      programName: boolean;
+      degree: boolean;
+      language: boolean;
+      campus: boolean;
+      status: boolean;
+      originalFee: boolean;
+      discountedFee: boolean;
+      cashFee: boolean;
+      depositFee: boolean;
+      prepSchoolFee: boolean;
+      academicYear: boolean;
+    };
+  };
   defaultViewMode?: "table" | "card";
 }) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -29,6 +61,7 @@ export function ProgramGrid({
 
   const selectedCount = selectedIds.length;
   const areAllVisibleSelected = programs.length > 0 && selectedCount === programs.length;
+  const tableFields = displaySettings.table;
 
   if (!programs.length) {
     return (
@@ -105,19 +138,19 @@ export function ProgramGrid({
               <TableHeader className="bg-card">
                 <TableRow>
                   <TableHead className="sticky top-16 z-30 w-[52px] border-b border-border/70 bg-card">Select</TableHead>
-                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">University</TableHead>
-                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Program</TableHead>
-                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Degree</TableHead>
-                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Language</TableHead>
-                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Campus</TableHead>
-                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Discounted</TableHead>
-                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Original</TableHead>
-                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Cash</TableHead>
-                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Deposit</TableHead>
-                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Prep School</TableHead>
-                  <TableHead className="sticky top-16 z-30 whitespace-nowrap border-b border-border/70 bg-card">Year</TableHead>
-                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Semester</TableHead>
-                  <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Status</TableHead>
+                  {tableFields.university ? <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">University</TableHead> : null}
+                  {tableFields.programName ? <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Program</TableHead> : null}
+                  {tableFields.degree ? <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Degree</TableHead> : null}
+                  {tableFields.language ? <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Language</TableHead> : null}
+                  {tableFields.campus ? <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Campus</TableHead> : null}
+                  {tableFields.discountedFee ? <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Discounted</TableHead> : null}
+                  {tableFields.originalFee ? <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Original</TableHead> : null}
+                  {tableFields.cashFee ? <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Cash</TableHead> : null}
+                  {tableFields.depositFee ? <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Deposit</TableHead> : null}
+                  {tableFields.prepSchoolFee ? <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Prep School</TableHead> : null}
+                  {tableFields.academicYear ? <TableHead className="sticky top-16 z-30 whitespace-nowrap border-b border-border/70 bg-card">Year</TableHead> : null}
+                  {tableFields.semester ? <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Semester</TableHead> : null}
+                  {tableFields.status ? <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card">Status</TableHead> : null}
                   <TableHead className="sticky top-16 z-30 border-b border-border/70 bg-card text-right">Details</TableHead>
                 </TableRow>
               </TableHeader>
@@ -145,27 +178,33 @@ export function ProgramGrid({
                           type="checkbox"
                         />
                       </TableCell>
-                      <TableCell className="min-w-[240px]">
-                        <div className="font-medium">{program.universityName}</div>
-                        {program.universityNameCn ? <div className="text-xs text-muted-foreground">{program.universityNameCn}</div> : null}
-                      </TableCell>
-                      <TableCell className="min-w-[280px]">
-                        <div className="font-medium">{program.programName}</div>
-                        {program.programNameCn ? <div className="text-xs text-muted-foreground">{program.programNameCn}</div> : null}
-                      </TableCell>
-                      <TableCell>{formatNullable(program.programDegree)}</TableCell>
-                      <TableCell>{formatNullable(program.language)}</TableCell>
-                      <TableCell>{formatNullable(program.campus)}</TableCell>
-                      <TableCell>{formatCurrency(program.discountedTuitionFee, currency)}</TableCell>
-                      <TableCell>{formatCurrency(program.tuitionFee, currency)}</TableCell>
-                      <TableCell>{formatCurrency(program.cashPaymentFee, currency)}</TableCell>
-                      <TableCell>{formatCurrency(program.depositPrice, currency)}</TableCell>
-                      <TableCell>{formatCurrency(program.prepSchoolFee, currency)}</TableCell>
-                      <TableCell className="whitespace-nowrap">{formatNullable(program.academicYear)}</TableCell>
-                      <TableCell>{formatNullable(program.semester)}</TableCell>
-                      <TableCell>
-                        <ProgramStatusBadge quotaFull={program.quotaFull} />
-                      </TableCell>
+                      {tableFields.university ? (
+                        <TableCell className="min-w-[240px]">
+                          <div className="font-medium">{program.universityName}</div>
+                          {program.universityNameCn ? <div className="text-xs text-muted-foreground">{program.universityNameCn}</div> : null}
+                        </TableCell>
+                      ) : null}
+                      {tableFields.programName ? (
+                        <TableCell className="min-w-[280px]">
+                          <div className="font-medium">{program.programName}</div>
+                          {program.programNameCn ? <div className="text-xs text-muted-foreground">{program.programNameCn}</div> : null}
+                        </TableCell>
+                      ) : null}
+                      {tableFields.degree ? <TableCell>{formatNullable(program.programDegree)}</TableCell> : null}
+                      {tableFields.language ? <TableCell>{formatNullable(program.language)}</TableCell> : null}
+                      {tableFields.campus ? <TableCell>{formatNullable(program.campus)}</TableCell> : null}
+                      {tableFields.discountedFee ? <TableCell>{formatCurrency(program.discountedTuitionFee, currency)}</TableCell> : null}
+                      {tableFields.originalFee ? <TableCell>{formatCurrency(program.tuitionFee, currency)}</TableCell> : null}
+                      {tableFields.cashFee ? <TableCell>{formatCurrency(program.cashPaymentFee, currency)}</TableCell> : null}
+                      {tableFields.depositFee ? <TableCell>{formatCurrency(program.depositPrice, currency)}</TableCell> : null}
+                      {tableFields.prepSchoolFee ? <TableCell>{formatCurrency(program.prepSchoolFee, currency)}</TableCell> : null}
+                      {tableFields.academicYear ? <TableCell className="whitespace-nowrap">{formatNullable(program.academicYear)}</TableCell> : null}
+                      {tableFields.semester ? <TableCell>{formatNullable(program.semester)}</TableCell> : null}
+                      {tableFields.status ? (
+                        <TableCell>
+                          <ProgramStatusBadge quotaFull={program.quotaFull} />
+                        </TableCell>
+                      ) : null}
                       <TableCell className="text-right">
                         <Button asChild size="sm" variant="outline">
                           <Link href={`/programs/${program.id}`}>View</Link>
@@ -192,6 +231,7 @@ export function ProgramGrid({
                 });
               }}
               program={program}
+              visibility={displaySettings.card}
               selectable
               selected={selectedIdSet.has(program.id)}
             />
