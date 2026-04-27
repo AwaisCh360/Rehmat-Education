@@ -46,7 +46,7 @@ export function Topbar({
             {branding.logoDataUrl ? <img alt="Portal logo" className="h-9 w-9 rounded-lg border border-border/70 object-contain bg-white" src={branding.logoDataUrl} /> : null}
             <div>
               <div className="text-sm font-semibold">{branding.appName}</div>
-              <div className="text-xs text-muted-foreground">{branding.slogan}</div>
+              <div className="text-xs text-muted-foreground">Admissions dashboard</div>
             </div>
           </div>
         </div>

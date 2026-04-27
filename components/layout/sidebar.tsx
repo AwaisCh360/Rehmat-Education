@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Bell, type LucideIcon, LayoutDashboard, Settings2 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -60,12 +59,9 @@ export function Sidebar({
           )}
           <div>
             <div className="text-sm font-semibold">{branding.appName}</div>
-            <div className="text-xs text-muted-foreground">{branding.slogan}</div>
+            <div className="text-xs text-muted-foreground">Admissions dashboard</div>
           </div>
         </Link>
-        <Badge className="w-fit" variant={role === "ADMIN" ? "warning" : "success"}>
-          {role === "ADMIN" ? "Admin workspace" : "Agent workspace"}
-        </Badge>
       </div>
 
       <nav className="flex flex-1 flex-col gap-1">
