@@ -12,6 +12,11 @@ function containsRtlScript(value: string) {
   return /[\u0590-\u08FF]/.test(value);
 }
 
+function containsUrduLetters(value: string) {
+  // Check for common Urdu-specific letters to treat Urdu as LTR
+  return /[ٹپچڈڑگںےھہ]/.test(value);
+}
+
 export function Topbar({
   branding,
   pathname,
@@ -32,7 +37,9 @@ export function Topbar({
   };
 }) {
   const tickerText = branding.movingHeaderText.trim().length ? branding.movingHeaderText : `${branding.appName} admissions updates`;
-  const isRtlTicker = containsRtlScript(tickerText);
+  // Default ticker direction: right-to-left, but treat Urdu as left-to-right
+  const isUrduTicker = containsUrduLetters(tickerText);
+  const isRtlTicker = !isUrduTicker;
   const tickerDurationSeconds = Math.min(120, Math.max(12, Math.round(branding.tickerDurationSeconds || 37)));
   const tickerStyle = {
     "--topbar-ticker-duration": `${tickerDurationSeconds}s`
