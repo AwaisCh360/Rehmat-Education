@@ -1,5 +1,4 @@
 import { Menu } from "lucide-react";
-import type { CSSProperties } from "react";
 
 import { Sidebar } from "@/components/layout/sidebar";
 import { NotificationsMenu } from "@/components/layout/notifications-menu";
@@ -21,7 +20,6 @@ export function Topbar({
     appName: string;
     slogan: string;
     movingHeaderText: string;
-    tickerSpeed: "slow" | "normal" | "fast";
     logoDataUrl: string | null;
   };
   pathname: string;
@@ -33,10 +31,6 @@ export function Topbar({
 }) {
   const tickerText = branding.movingHeaderText.trim().length ? branding.movingHeaderText : `${branding.appName} admissions updates`;
   const isRtlTicker = containsRtlScript(tickerText);
-  const tickerDurationSeconds = branding.tickerSpeed === "slow" ? 24 : branding.tickerSpeed === "fast" ? 10 : 16;
-  const tickerStyle = {
-    "--topbar-ticker-duration": `${tickerDurationSeconds}s`
-  } as CSSProperties;
   const tickerRepeatCount = 5;
   const tickerItems = Array.from({ length: tickerRepeatCount }, (_, index) => (
     <span className="topbar-ticker-item" key={`ticker-item-${index}`}>
@@ -72,11 +66,7 @@ export function Topbar({
         </div>
 
         <div className="relative hidden h-10 flex-1 overflow-hidden rounded-full border border-border/70 bg-muted/35 md:block">
-          <div
-            className={isRtlTicker ? "topbar-ticker-track topbar-ticker-track-rtl" : "topbar-ticker-track topbar-ticker-track-ltr"}
-            dir={isRtlTicker ? "rtl" : "ltr"}
-            style={tickerStyle}
-          >
+          <div className={isRtlTicker ? "topbar-ticker-track topbar-ticker-track-rtl" : "topbar-ticker-track topbar-ticker-track-ltr"} dir={isRtlTicker ? "rtl" : "ltr"}>
             <div className="topbar-ticker-segment">{tickerItems}</div>
             <div aria-hidden className="topbar-ticker-segment">
               {tickerItems}

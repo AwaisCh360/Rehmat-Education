@@ -8,7 +8,6 @@ const portalSettingsSchema = z.object({
   appName: z.string().trim().min(2).max(80),
   slogan: z.string().trim().min(5).max(140),
   movingHeaderText: z.string().trim().min(2).max(220),
-  tickerSpeed: z.enum(["slow", "normal", "fast"]),
   logoDataUrl: z.string().trim().optional().nullable(),
   heroSlides: z.array(z.string().trim()).max(10),
   signupEnabled: z.boolean(),
