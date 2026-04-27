@@ -101,25 +101,24 @@ export function ProgramGrid({
 
       {viewMode === "table" ? (
         <div className="overflow-hidden rounded-2xl border border-border/70 bg-card">
-          <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-card shadow-sm">
                 <TableRow>
-                  <TableHead className="sticky top-16 z-20 w-[52px] bg-card">Select</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card">University</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card">Program</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card">Degree</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card">Language</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card">Campus</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card">Discounted</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card">Original</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card">Cash</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card">Deposit</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card">Prep School</TableHead>
-                  <TableHead className="sticky top-16 z-20 whitespace-nowrap bg-card">Year</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card">Semester</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card">Status</TableHead>
-                  <TableHead className="sticky top-16 z-20 bg-card text-right">Details</TableHead>
+                  <TableHead className="sticky top-16 z-20 w-[52px] border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Select</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">University</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Program</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Degree</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Language</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Campus</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Discounted</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Original</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Cash</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Deposit</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Prep School</TableHead>
+                  <TableHead className="sticky top-16 z-20 whitespace-nowrap border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Year</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Semester</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90">Status</TableHead>
+                  <TableHead className="sticky top-16 z-20 border-b border-border/70 bg-card/95 text-right backdrop-blur supports-[backdrop-filter]:bg-card/90">Details</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -177,7 +176,6 @@ export function ProgramGrid({
                 })}
               </TableBody>
             </Table>
-          </div>
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
