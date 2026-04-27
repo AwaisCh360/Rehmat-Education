@@ -51,8 +51,8 @@ export const defaultPortalSettings: PortalSettings = {
   slogan: "Plan Today, Study Tomorrow, Succeed Forever",
   movingHeaderText: "Plan Today, Study Tomorrow, Succeed Forever",
   tickerDurationSeconds: 37,
-  heroBannerWidthPx: 1400,
-  heroBannerHeightPx: 240,
+  heroBannerWidthPx: 2400,
+  heroBannerHeightPx: 320,
   logoDataUrl: null,
   heroSlides: [],
   signupEnabled: true,
@@ -167,14 +167,14 @@ function normalizePortalSettings(valueJson: string): PortalSettings {
         typeof parsed.heroBannerWidthPx === "number" &&
         Number.isFinite(parsed.heroBannerWidthPx) &&
         parsed.heroBannerWidthPx >= 360 &&
-        parsed.heroBannerWidthPx <= 1600
+        parsed.heroBannerWidthPx <= 4000
           ? Math.round(parsed.heroBannerWidthPx)
           : defaultPortalSettings.heroBannerWidthPx,
       heroBannerHeightPx:
         typeof parsed.heroBannerHeightPx === "number" &&
         Number.isFinite(parsed.heroBannerHeightPx) &&
         parsed.heroBannerHeightPx >= 80 &&
-        parsed.heroBannerHeightPx <= 480
+        parsed.heroBannerHeightPx <= 1000
           ? Math.round(parsed.heroBannerHeightPx)
           : defaultPortalSettings.heroBannerHeightPx,
       logoDataUrl: typeof parsed.logoDataUrl === "string" && parsed.logoDataUrl.trim().length > 0 ? parsed.logoDataUrl : null,

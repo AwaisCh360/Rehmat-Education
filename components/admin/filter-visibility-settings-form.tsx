@@ -243,14 +243,14 @@ export function FilterVisibilitySettingsForm({
                 <Label htmlFor="portal-hero-width">Hero banner width (px)</Label>
                 <Input
                   id="portal-hero-width"
-                  max={1600}
+                    max={4000}
                   min={360}
                   onChange={(event) => {
                     const nextValue = Number.parseInt(event.target.value, 10);
 
                     setPortalSettings((current) => ({
                       ...current,
-                      heroBannerWidthPx: Number.isFinite(nextValue) ? Math.min(1600, Math.max(360, nextValue)) : current.heroBannerWidthPx
+                        heroBannerWidthPx: Number.isFinite(nextValue) ? Math.min(4000, Math.max(360, nextValue)) : current.heroBannerWidthPx
                     }));
                   }}
                   step={10}
@@ -263,14 +263,14 @@ export function FilterVisibilitySettingsForm({
                 <Label htmlFor="portal-hero-height">Hero banner height (px)</Label>
                 <Input
                   id="portal-hero-height"
-                  max={480}
+                  max={1000}
                   min={80}
                   onChange={(event) => {
                     const nextValue = Number.parseInt(event.target.value, 10);
 
                     setPortalSettings((current) => ({
                       ...current,
-                      heroBannerHeightPx: Number.isFinite(nextValue) ? Math.min(480, Math.max(80, nextValue)) : current.heroBannerHeightPx
+                      heroBannerHeightPx: Number.isFinite(nextValue) ? Math.min(1000, Math.max(80, nextValue)) : current.heroBannerHeightPx
                     }));
                   }}
                   step={10}
@@ -280,7 +280,7 @@ export function FilterVisibilitySettingsForm({
               </div>
 
               <p className="text-xs text-muted-foreground md:col-span-2">
-                Use width to control how wide the banner appears and height to control how tall it is.
+                Width can go up to 4000px and height can go up to 1000px. Bigger width helps the banner fill the content area.
               </p>
             </div>
 
