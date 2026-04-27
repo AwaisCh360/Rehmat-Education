@@ -111,11 +111,11 @@ textarea {
 }
 
 .topbar-ticker-track-ltr {
-  animation: topbar-ticker-ltr 24s linear infinite;
+  animation: topbar-ticker-ltr 37s linear infinite;
 }
 
 .topbar-ticker-track-rtl {
-  animation: topbar-ticker-rtl 24s linear infinite;
+  animation: topbar-ticker-rtl 37s linear infinite;
 }
 
 @keyframes topbar-ticker-ltr {
