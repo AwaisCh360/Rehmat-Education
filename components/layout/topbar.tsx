@@ -7,6 +7,10 @@ import { UserMenu } from "@/components/layout/user-menu";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
+function containsRtlScript(value: string) {
+  return /[\u0590-\u08FF]/.test(value);
+}
+
 export function Topbar({
   branding,
   pathname,
@@ -15,6 +19,7 @@ export function Topbar({
   branding: {
     appName: string;
     slogan: string;
+    movingHeaderText: string;
     logoDataUrl: string | null;
   };
   pathname: string;
@@ -24,6 +29,9 @@ export function Topbar({
     role: "ADMIN" | "AGENT";
   };
 }) {
+  const tickerText = branding.movingHeaderText.trim().length ? branding.movingHeaderText : `${branding.appName} admissions updates`;
+  const isRtlTicker = containsRtlScript(tickerText);
+
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 backdrop-blur">
       <div className="flex h-16 items-center justify-between gap-3 px-4 lg:px-6">
@@ -48,6 +56,15 @@ export function Topbar({
               <div className="text-sm font-semibold">{branding.appName}</div>
               <div className="text-xs text-muted-foreground">Admissions dashboard</div>
             </div>
+          </div>
+        </div>
+
+        <div className="relative hidden h-10 flex-1 overflow-hidden rounded-full border border-border/70 bg-muted/35 md:block">
+          <div
+            className={isRtlTicker ? "topbar-marquee topbar-marquee-rtl" : "topbar-marquee topbar-marquee-ltr"}
+            dir={isRtlTicker ? "rtl" : "ltr"}
+          >
+            {tickerText}
           </div>
         </div>
 

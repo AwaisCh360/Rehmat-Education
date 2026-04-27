@@ -201,6 +201,23 @@ export function FilterVisibilitySettingsForm({
             </div>
 
             <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="portal-moving-header">Moving header text</Label>
+              <Input
+                id="portal-moving-header"
+                maxLength={220}
+                onChange={(event) =>
+                  setPortalSettings((current) => ({
+                    ...current,
+                    movingHeaderText: event.target.value
+                  }))
+                }
+                placeholder="Plan Today, Study Tomorrow, Succeed Forever"
+                value={portalSettings.movingHeaderText}
+              />
+              <p className="text-xs text-muted-foreground">Urdu/Arabic text auto scrolls right-to-left. English text auto scrolls left-to-right.</p>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="portal-logo">Logo (max 2MB)</Label>
               <Input
                 accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
@@ -258,7 +275,7 @@ export function FilterVisibilitySettingsForm({
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="portal-slides">Hero slideshow images (1080x720, max 2MB each)</Label>
+              <Label htmlFor="portal-slides">Hero slideshow images</Label>
               <Input
                 accept="image/png,image/jpeg,image/jpg,image/webp"
                 id="portal-slides"
@@ -301,6 +318,7 @@ export function FilterVisibilitySettingsForm({
                 }}
                 type="file"
               />
+              <p className="text-xs text-muted-foreground">Recommended size: 1080 x 720 px. Ratio: 3:2. Maximum size: 2MB per image. Formats: PNG, JPG, WEBP.</p>
               {slidesError ? <p className="text-xs text-destructive">{slidesError}</p> : null}
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {portalSettings.heroSlides.map((slide, index) => (

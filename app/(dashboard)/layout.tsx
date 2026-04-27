@@ -19,6 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       branding={{
         appName: portalSettings.appName,
         slogan: portalSettings.slogan,
+        movingHeaderText: portalSettings.movingHeaderText,
         logoDataUrl: portalSettings.logoDataUrl
       }}
       user={{

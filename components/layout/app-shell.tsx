@@ -14,6 +14,7 @@ export function AppShell({
   branding: {
     appName: string;
     slogan: string;
+    movingHeaderText: string;
     logoDataUrl: string | null;
   };
   user: {

@@ -24,7 +24,7 @@ export function HeroSlider({ slides }: { slides: string[] }) {
 
   if (!safeSlides.length) {
     return (
-      <div className="relative mx-auto aspect-[3/2] w-full max-w-[880px] min-h-[220px] overflow-hidden rounded-2xl border border-border/70 bg-[linear-gradient(125deg,rgba(15,23,42,0.95),rgba(8,47,73,0.85))] lg:min-h-[320px]">
+      <div className="relative aspect-[3/2] w-full min-h-[220px] overflow-hidden rounded-2xl border border-border/70 bg-[linear-gradient(125deg,rgba(15,23,42,0.95),rgba(8,47,73,0.85))] lg:min-h-[320px]">
         <div className="flex h-full items-center justify-center text-center text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
           Add slideshow images from admin settings
         </div>
@@ -33,7 +33,7 @@ export function HeroSlider({ slides }: { slides: string[] }) {
   }
 
   return (
-    <div className="relative mx-auto aspect-[3/2] w-full max-w-[880px] min-h-[220px] overflow-hidden rounded-2xl border border-border/70 bg-slate-950 lg:min-h-[320px]">
+    <div className="relative aspect-[3/2] w-full min-h-[220px] overflow-hidden rounded-2xl border border-border/70 bg-slate-950 lg:min-h-[320px]">
       {safeSlides.map((slide, index) => (
         <img
           key={`${slide.slice(0, 24)}-${index}`}

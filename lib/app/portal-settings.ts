@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 export type PortalSettings = {
   appName: string;
   slogan: string;
+  movingHeaderText: string;
   logoDataUrl: string | null;
   heroSlides: string[];
   signupEnabled: boolean;
@@ -45,6 +46,7 @@ const SETTINGS_KEY = "portal-settings";
 export const defaultPortalSettings: PortalSettings = {
   appName: "Student On Board",
   slogan: "Plan Today, Study Tomorrow, Succeed Forever",
+  movingHeaderText: "Plan Today, Study Tomorrow, Succeed Forever",
   logoDataUrl: null,
   heroSlides: [],
   signupEnabled: true,
@@ -142,6 +144,12 @@ function normalizePortalSettings(valueJson: string): PortalSettings {
     return {
       appName: typeof parsed.appName === "string" && parsed.appName.trim().length > 0 ? parsed.appName.trim() : defaultPortalSettings.appName,
       slogan: typeof parsed.slogan === "string" && parsed.slogan.trim().length > 0 ? parsed.slogan.trim() : defaultPortalSettings.slogan,
+      movingHeaderText:
+        typeof parsed.movingHeaderText === "string" && parsed.movingHeaderText.trim().length > 0
+          ? parsed.movingHeaderText.trim()
+          : typeof parsed.slogan === "string" && parsed.slogan.trim().length > 0
+            ? parsed.slogan.trim()
+            : defaultPortalSettings.movingHeaderText,
       logoDataUrl: typeof parsed.logoDataUrl === "string" && parsed.logoDataUrl.trim().length > 0 ? parsed.logoDataUrl : null,
       heroSlides: Array.isArray(parsed.heroSlides)
         ? parsed.heroSlides.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
