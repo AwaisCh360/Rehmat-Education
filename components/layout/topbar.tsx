@@ -60,11 +60,11 @@ export function Topbar({
         </div>
 
         <div className="relative hidden h-10 flex-1 overflow-hidden rounded-full border border-border/70 bg-muted/35 md:block">
-          <div
-            className={isRtlTicker ? "topbar-marquee topbar-marquee-rtl" : "topbar-marquee topbar-marquee-ltr"}
-            dir={isRtlTicker ? "rtl" : "ltr"}
-          >
-            {tickerText}
+          <div className={isRtlTicker ? "topbar-ticker-track topbar-ticker-track-rtl" : "topbar-ticker-track topbar-ticker-track-ltr"} dir={isRtlTicker ? "rtl" : "ltr"}>
+            <span className="topbar-ticker-item">{tickerText}</span>
+            <span aria-hidden className="topbar-ticker-item">
+              {tickerText}
+            </span>
           </div>
         </div>
 

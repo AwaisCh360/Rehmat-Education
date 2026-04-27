@@ -79,3 +79,49 @@ select,
 textarea {
   font: inherit;
 }
+
+.topbar-ticker-track {
+  display: flex;
+  width: max-content;
+  min-width: 200%;
+  height: 100%;
+  align-items: center;
+  gap: 2.5rem;
+  will-change: transform;
+}
+
+.topbar-ticker-item {
+  white-space: nowrap;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: hsl(var(--muted-foreground));
+}
+
+.topbar-ticker-track-ltr {
+  animation: topbar-ticker-ltr 14s linear infinite;
+}
+
+.topbar-ticker-track-rtl {
+  animation: topbar-ticker-rtl 14s linear infinite;
+}
+
+@keyframes topbar-ticker-ltr {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes topbar-ticker-rtl {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
