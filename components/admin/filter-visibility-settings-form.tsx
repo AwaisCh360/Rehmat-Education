@@ -238,6 +238,52 @@ export function FilterVisibilitySettingsForm({
               <p className="text-xs text-muted-foreground">Recommended range: 24-45. Larger number means slower, smoother scrolling.</p>
             </div>
 
+            <div className="grid gap-3 md:grid-cols-2 md:col-span-2">
+              <div className="space-y-2">
+                <Label htmlFor="portal-hero-width">Hero banner width (px)</Label>
+                <Input
+                  id="portal-hero-width"
+                  max={1600}
+                  min={360}
+                  onChange={(event) => {
+                    const nextValue = Number.parseInt(event.target.value, 10);
+
+                    setPortalSettings((current) => ({
+                      ...current,
+                      heroBannerWidthPx: Number.isFinite(nextValue) ? Math.min(1600, Math.max(360, nextValue)) : current.heroBannerWidthPx
+                    }));
+                  }}
+                  step={10}
+                  type="number"
+                  value={portalSettings.heroBannerWidthPx}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="portal-hero-height">Hero banner height (px)</Label>
+                <Input
+                  id="portal-hero-height"
+                  max={480}
+                  min={80}
+                  onChange={(event) => {
+                    const nextValue = Number.parseInt(event.target.value, 10);
+
+                    setPortalSettings((current) => ({
+                      ...current,
+                      heroBannerHeightPx: Number.isFinite(nextValue) ? Math.min(480, Math.max(80, nextValue)) : current.heroBannerHeightPx
+                    }));
+                  }}
+                  step={10}
+                  type="number"
+                  value={portalSettings.heroBannerHeightPx}
+                />
+              </div>
+
+              <p className="text-xs text-muted-foreground md:col-span-2">
+                Use width to control how wide the banner appears and height to control how tall it is.
+              </p>
+            </div>
+
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="portal-logo">Logo (max 2MB)</Label>
               <Input

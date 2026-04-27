@@ -5,6 +5,8 @@ export type PortalSettings = {
   slogan: string;
   movingHeaderText: string;
   tickerDurationSeconds: number;
+  heroBannerWidthPx: number;
+  heroBannerHeightPx: number;
   logoDataUrl: string | null;
   heroSlides: string[];
   signupEnabled: boolean;
@@ -49,6 +51,8 @@ export const defaultPortalSettings: PortalSettings = {
   slogan: "Plan Today, Study Tomorrow, Succeed Forever",
   movingHeaderText: "Plan Today, Study Tomorrow, Succeed Forever",
   tickerDurationSeconds: 37,
+  heroBannerWidthPx: 960,
+  heroBannerHeightPx: 180,
   logoDataUrl: null,
   heroSlides: [],
   signupEnabled: true,
@@ -159,6 +163,20 @@ function normalizePortalSettings(valueJson: string): PortalSettings {
         parsed.tickerDurationSeconds <= 120
           ? Math.round(parsed.tickerDurationSeconds)
           : defaultPortalSettings.tickerDurationSeconds,
+      heroBannerWidthPx:
+        typeof parsed.heroBannerWidthPx === "number" &&
+        Number.isFinite(parsed.heroBannerWidthPx) &&
+        parsed.heroBannerWidthPx >= 360 &&
+        parsed.heroBannerWidthPx <= 1600
+          ? Math.round(parsed.heroBannerWidthPx)
+          : defaultPortalSettings.heroBannerWidthPx,
+      heroBannerHeightPx:
+        typeof parsed.heroBannerHeightPx === "number" &&
+        Number.isFinite(parsed.heroBannerHeightPx) &&
+        parsed.heroBannerHeightPx >= 80 &&
+        parsed.heroBannerHeightPx <= 480
+          ? Math.round(parsed.heroBannerHeightPx)
+          : defaultPortalSettings.heroBannerHeightPx,
       logoDataUrl: typeof parsed.logoDataUrl === "string" && parsed.logoDataUrl.trim().length > 0 ? parsed.logoDataUrl : null,
       heroSlides: Array.isArray(parsed.heroSlides)
         ? parsed.heroSlides.filter((item): item is string => typeof item === "string" && item.trim().length > 0)

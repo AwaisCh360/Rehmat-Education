@@ -40,7 +40,7 @@ export default async function ProgramsPage({
       <section>
         <Card className="rounded-2xl border-border/70 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.18),transparent_45%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.18),transparent_42%),linear-gradient(120deg,rgba(15,23,42,0.82),rgba(3,7,18,0.95))]">
           <CardContent className="p-6">
-            <HeroSlider slides={heroSlides} />
+            <HeroSlider heightPx={portalSettings.heroBannerHeightPx} slides={heroSlides} widthPx={portalSettings.heroBannerWidthPx} />
           </CardContent>
         </Card>
       </section>
