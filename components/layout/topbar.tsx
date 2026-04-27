@@ -31,6 +31,12 @@ export function Topbar({
 }) {
   const tickerText = branding.movingHeaderText.trim().length ? branding.movingHeaderText : `${branding.appName} admissions updates`;
   const isRtlTicker = containsRtlScript(tickerText);
+  const tickerRepeatCount = 5;
+  const tickerItems = Array.from({ length: tickerRepeatCount }, (_, index) => (
+    <span className="topbar-ticker-item" key={`ticker-item-${index}`}>
+      {tickerText}
+    </span>
+  ));
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 backdrop-blur">
@@ -61,10 +67,10 @@ export function Topbar({
 
         <div className="relative hidden h-10 flex-1 overflow-hidden rounded-full border border-border/70 bg-muted/35 md:block">
           <div className={isRtlTicker ? "topbar-ticker-track topbar-ticker-track-rtl" : "topbar-ticker-track topbar-ticker-track-ltr"} dir={isRtlTicker ? "rtl" : "ltr"}>
-            <span className="topbar-ticker-item">{tickerText}</span>
-            <span aria-hidden className="topbar-ticker-item">
-              {tickerText}
-            </span>
+            <div className="topbar-ticker-segment">{tickerItems}</div>
+            <div aria-hidden className="topbar-ticker-segment">
+              {tickerItems}
+            </div>
           </div>
         </div>
 

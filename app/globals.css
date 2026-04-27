@@ -86,17 +86,23 @@ textarea {
   top: 50%;
   display: flex;
   align-items: center;
-  min-width: 200%;
+  width: max-content;
   white-space: nowrap;
   will-change: transform;
 }
 
-.topbar-ticker-item {
-  display: flex;
-  flex: 0 0 100%;
+.topbar-ticker-segment {
+  display: inline-flex;
+  flex-shrink: 0;
   min-width: 100%;
   align-items: center;
-  padding-inline: 1.5rem;
+}
+
+.topbar-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding-inline: 1.25rem;
   white-space: nowrap;
   font-size: 0.8rem;
   font-weight: 600;
