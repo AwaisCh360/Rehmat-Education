@@ -218,6 +218,29 @@ export function FilterVisibilitySettingsForm({
             </div>
 
             <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="portal-ticker-speed">Moving text speed</Label>
+              <Select
+                onValueChange={(value) =>
+                  setPortalSettings((current) => ({
+                    ...current,
+                    tickerSpeed: value as "slow" | "normal" | "fast"
+                  }))
+                }
+                value={portalSettings.tickerSpeed}
+              >
+                <SelectTrigger id="portal-ticker-speed">
+                  <SelectValue placeholder="Select moving text speed" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="slow">Slow</SelectItem>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="fast">Fast</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Use Slow for easy reading, Normal for balanced movement, and Fast for compact headlines.</p>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="portal-logo">Logo (max 2MB)</Label>
               <Input
                 accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"

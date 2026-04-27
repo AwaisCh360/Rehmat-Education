@@ -15,6 +15,7 @@ export function AppShell({
     appName: string;
     slogan: string;
     movingHeaderText: string;
+    tickerSpeed: "slow" | "normal" | "fast";
     logoDataUrl: string | null;
   };
   user: {
