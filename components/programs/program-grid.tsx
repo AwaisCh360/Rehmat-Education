@@ -101,7 +101,7 @@ export function ProgramGrid({
 
       {viewMode === "table" ? (
         <div className="rounded-2xl border border-border/70 bg-card">
-            <Table className="[border-collapse:separate] [border-spacing:0]">
+            <Table className="[border-collapse:separate] [border-spacing:0]" disableWrapper>
               <TableHeader className="bg-card">
                 <TableRow>
                   <TableHead className="sticky top-16 z-30 w-[52px] border-b border-border/70 bg-card">Select</TableHead>
