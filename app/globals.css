@@ -84,16 +84,19 @@ textarea {
   position: absolute;
   left: 0;
   top: 50%;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  min-width: 200%;
   white-space: nowrap;
   will-change: transform;
 }
 
 .topbar-ticker-item {
-  display: inline-flex;
+  display: flex;
+  flex: 0 0 100%;
+  min-width: 100%;
   align-items: center;
-  padding-right: 3rem;
+  padding-inline: 1.5rem;
   white-space: nowrap;
   font-size: 0.8rem;
   font-weight: 600;
