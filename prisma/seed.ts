@@ -7,6 +7,16 @@ import { db } from "@/lib/db";
 import { APP_ROLES } from "@/lib/auth/roles";
 import { extractProgramRecords, toProgramPersistence } from "@/lib/programs/parser";
 
+function requireEnv(name: string) {
+  const value = process.env[name]?.trim();
+
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+
+  return value;
+}
+
 async function main() {
   const datasetPath = path.join(process.cwd(), "programs.json");
   const raw = await readFile(datasetPath, "utf8");
@@ -21,20 +31,24 @@ async function main() {
     data: programs
   });
 
-  const adminPassword = await hash(process.env.ADMIN_PASSWORD ?? "AdminPass123!", 10);
-  const agentPassword = await hash(process.env.AGENT_PASSWORD ?? "AgentPass123!", 10);
+  const adminEmail = requireEnv("ADMIN_EMAIL").toLowerCase();
+  const adminName = requireEnv("ADMIN_NAME");
+  const adminPassword = await hash(requireEnv("ADMIN_PASSWORD"), 10);
+  const agentEmail = requireEnv("AGENT_EMAIL").toLowerCase();
+  const agentName = requireEnv("AGENT_NAME");
+  const agentPassword = await hash(requireEnv("AGENT_PASSWORD"), 10);
 
   await db.user.createMany({
     data: [
       {
-        email: (process.env.ADMIN_EMAIL ?? "admin@rehmatedu.local").toLowerCase(),
-        name: process.env.ADMIN_NAME ?? "Platform Admin",
+        email: adminEmail,
+        name: adminName,
         passwordHash: adminPassword,
         role: APP_ROLES.ADMIN
       },
       {
-        email: (process.env.AGENT_EMAIL ?? "agent@rehmatedu.local").toLowerCase(),
-        name: process.env.AGENT_NAME ?? "Admissions Agent",
+        email: agentEmail,
+        name: agentName,
         passwordHash: agentPassword,
         role: APP_ROLES.AGENT
       }
