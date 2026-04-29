@@ -149,7 +149,7 @@ export function FilterVisibilitySettingsForm({
   const [pdfSettings, setPdfSettings] = useState(initialPdfSettings);
   const [importSettings, setImportSettings] = useState(initialImportSettings);
   const [portalSettings, setPortalSettings] = useState(initialPortalSettings);
-  const [logoError, setLogoError] = useState<string | null>(null);
+  const [tickerDurationInput, setTickerDurationInput] = useState(String(initialPortalSettings.tickerDurationSeconds));
   const [slidesError, setSlidesError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isSyncPending, startSyncTransition] = useTransition();
@@ -221,19 +221,35 @@ export function FilterVisibilitySettingsForm({
               <Label htmlFor="portal-ticker-duration">Moving text duration (seconds)</Label>
               <Input
                 id="portal-ticker-duration"
-                max={120}
-                min={12}
-                onChange={(event) => {
-                  const nextValue = Number.parseInt(event.target.value, 10);
+                inputMode="numeric"
+                onBlur={() => {
+                  if (!tickerDurationInput.trim()) {
+                    setTickerDurationInput(String(portalSettings.tickerDurationSeconds));
+                    return;
+                  }
 
-                  setPortalSettings((current) => ({
-                    ...current,
-                    tickerDurationSeconds: Number.isFinite(nextValue) ? Math.min(120, Math.max(12, nextValue)) : current.tickerDurationSeconds
-                  }));
+                  const nextValue = Number.parseInt(tickerDurationInput, 10);
+
+                  if (Number.isFinite(nextValue)) {
+                    setTickerDurationInput(String(Math.min(120, Math.max(12, nextValue))));
+                  }
                 }}
-                step={1}
-                type="number"
-                value={portalSettings.tickerDurationSeconds}
+                onChange={(event) => {
+                  const nextValue = event.target.value.replace(/[^0-9]/g, "");
+
+                  setTickerDurationInput(nextValue);
+                  const parsedValue = Number.parseInt(nextValue, 10);
+
+                  if (Number.isFinite(parsedValue)) {
+                    setPortalSettings((current) => ({
+                      ...current,
+                      tickerDurationSeconds: Math.min(120, Math.max(12, parsedValue))
+                    }));
+                  }
+                }}
+                pattern="[0-9]*"
+                type="text"
+                value={tickerDurationInput}
               />
               <p className="text-xs text-muted-foreground">Recommended range: 24-45. Larger number means slower, smoother scrolling.</p>
             </div>
@@ -243,14 +259,14 @@ export function FilterVisibilitySettingsForm({
                 <Label htmlFor="portal-hero-width">Hero banner width (px)</Label>
                 <Input
                   id="portal-hero-width"
-                    max={4000}
+                  max={4000}
                   min={360}
                   onChange={(event) => {
                     const nextValue = Number.parseInt(event.target.value, 10);
 
                     setPortalSettings((current) => ({
                       ...current,
-                        heroBannerWidthPx: Number.isFinite(nextValue) ? Math.min(4000, Math.max(360, nextValue)) : current.heroBannerWidthPx
+                      heroBannerWidthPx: Number.isFinite(nextValue) ? Math.min(4000, Math.max(360, nextValue)) : current.heroBannerWidthPx
                     }));
                   }}
                   step={10}
@@ -282,63 +298,6 @@ export function FilterVisibilitySettingsForm({
               <p className="text-xs text-muted-foreground md:col-span-2">
                 Width can go up to 4000px and height can go up to 1000px. Bigger width helps the banner fill the content area.
               </p>
-            </div>
-
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="portal-logo">Logo (max 2MB)</Label>
-              <Input
-                accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
-                id="portal-logo"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-
-                  if (!file) {
-                    return;
-                  }
-
-                  if (file.size > 2 * 1024 * 1024) {
-                    setLogoError("Logo size must be 2MB or less.");
-                    return;
-                  }
-
-                  setLogoError(null);
-
-                  const reader = new FileReader();
-                  reader.onload = () => {
-                    const result = typeof reader.result === "string" ? reader.result : "";
-
-                    if (!result.startsWith("data:image/")) {
-                      setLogoError("Please upload a valid image file.");
-                      return;
-                    }
-
-                    setPortalSettings((current) => ({
-                      ...current,
-                      logoDataUrl: result
-                    }));
-                  };
-                  reader.readAsDataURL(file);
-                }}
-                type="file"
-              />
-              {logoError ? <p className="text-xs text-destructive">{logoError}</p> : null}
-              {portalSettings.logoDataUrl ? (
-                <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-background/80 p-3">
-                  <img alt="Portal logo preview" className="h-10 w-10 rounded-lg border border-border/70 object-contain bg-white" src={portalSettings.logoDataUrl} />
-                  <Button
-                    onClick={() =>
-                      setPortalSettings((current) => ({
-                        ...current,
-                        logoDataUrl: null
-                      }))
-                    }
-                    type="button"
-                    variant="outline"
-                  >
-                    Remove logo
-                  </Button>
-                </div>
-              ) : null}
             </div>
 
             <div className="space-y-2 md:col-span-2">
@@ -629,6 +588,12 @@ export function FilterVisibilitySettingsForm({
           disabled={isPending}
           onClick={() => {
             startTransition(async () => {
+              const parsedTickerDuration = Number.parseInt(tickerDurationInput, 10);
+              const nextPortalSettings = {
+                ...portalSettings,
+                tickerDurationSeconds: Number.isFinite(parsedTickerDuration) ? Math.min(120, Math.max(12, parsedTickerDuration)) : portalSettings.tickerDurationSeconds
+              };
+
               const [filtersResponse, pdfResponse, importResponse, portalResponse] = await Promise.all([
                 fetch("/api/admin/settings/filters", {
                   method: "POST",
@@ -656,7 +621,7 @@ export function FilterVisibilitySettingsForm({
                   headers: {
                     "Content-Type": "application/json"
                   },
-                  body: JSON.stringify(portalSettings)
+                  body: JSON.stringify(nextPortalSettings)
                 })
               ]);
 
